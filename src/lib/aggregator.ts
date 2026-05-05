@@ -2,6 +2,7 @@ import {
   WeatherSourceResult,
   AggregatedWeather,
   AggregatedDailyForecast,
+  AggregatedHourlyForecast,
   Divergence,
   Location,
   ViticultureIndicators,
@@ -57,6 +58,59 @@ function detectDivergences(sources: WeatherSourceResult[]): Divergence[] {
   }
 
   return divergences;
+}
+
+function aggregateHourly(sources: WeatherSourceResult[]): AggregatedHourlyForecast[] {
+  const valid = sources.filter((s) => !s.error && s.hourly.length > 0);
+  if (valid.length === 0) return [];
+
+  type HourAccumulator = {
+    temps: { value: number; weight: number }[];
+    feelsLike: { value: number; weight: number }[];
+    precips: { value: number; weight: number }[];
+    precipProbs: { value: number; weight: number }[];
+    windSpeeds: { value: number; weight: number }[];
+    codes: number[];
+  };
+
+  const timeMap: Record<string, HourAccumulator> = {};
+
+  for (const source of valid) {
+    const weight = source.reputation / 100;
+    for (const h of source.hourly) {
+      if (!timeMap[h.time]) {
+        timeMap[h.time] = { temps: [], feelsLike: [], precips: [], precipProbs: [], windSpeeds: [], codes: [] };
+      }
+      const acc = timeMap[h.time];
+      if (h.temperature !== null) acc.temps.push({ value: h.temperature, weight });
+      if (h.feelsLike !== null) acc.feelsLike.push({ value: h.feelsLike, weight });
+      if (h.precipitation !== null) acc.precips.push({ value: h.precipitation, weight });
+      if (h.precipitationProbability !== null) acc.precipProbs.push({ value: h.precipitationProbability, weight });
+      if (h.windSpeed !== null) acc.windSpeeds.push({ value: h.windSpeed, weight });
+      if (h.weatherCode !== null) acc.codes.push(h.weatherCode);
+    }
+  }
+
+  return Object.keys(timeMap)
+    .sort()
+    .slice(0, 24)
+    .map((time) => {
+      const acc = timeMap[time];
+      const codeFreq = acc.codes.reduce<Record<number, number>>((r, c) => { r[c] = (r[c] ?? 0) + 1; return r; }, {});
+      const weatherCode = acc.codes.length > 0
+        ? parseInt(Object.keys(codeFreq).sort((a, b) => codeFreq[parseInt(b)] - codeFreq[parseInt(a)])[0])
+        : 0;
+      return {
+        time,
+        temperature: weightedMean(acc.temps) ?? 0,
+        feelsLike: weightedMean(acc.feelsLike) ?? 0,
+        precipitation: weightedMean(acc.precips) ?? 0,
+        precipitationProbability: weightedMean(acc.precipProbs) ?? 0,
+        windSpeed: weightedMean(acc.windSpeeds) ?? 0,
+        weatherCode,
+        description: getWeatherDescription(weatherCode),
+      };
+    });
 }
 
 type DayAccumulator = {
@@ -238,6 +292,7 @@ export function aggregate(
     validSources: valid.length,
     divergences: detectDivergences(sources),
     daily: aggregateDaily(sources),
+    hourly: aggregateHourly(sources),
     fetchedAt: new Date().toISOString(),
   };
 

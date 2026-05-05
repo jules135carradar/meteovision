@@ -11,6 +11,7 @@ import DailyForecast from "@/components/DailyForecast";
 import ProModeIndicators from "@/components/ProModeIndicators";
 import VoteButton from "@/components/VoteButton";
 import MetierSelector from "@/components/MetierSelector";
+import HourlyForecast from "@/components/HourlyForecast";
 import SearchBar from "@/components/SearchBar";
 
 export default function VillePage() {
@@ -93,6 +94,9 @@ export default function VillePage() {
 
           {/* Carte météo principale */}
           <WeatherCard weather={weather} />
+
+          {/* Prévisions heure par heure */}
+          <HourlyForecast hourly={weather.hourly} />
 
           {/* Alertes divergences */}
           {weather.divergences.length > 0 && (

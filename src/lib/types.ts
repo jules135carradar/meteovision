@@ -6,6 +6,27 @@ export interface Location {
   admin1?: string;
 }
 
+export interface HourlyForecast {
+  time: string;
+  temperature: number | null;
+  feelsLike: number | null;
+  precipitation: number | null;
+  precipitationProbability: number | null;
+  windSpeed: number | null;
+  weatherCode: number | null;
+}
+
+export interface AggregatedHourlyForecast {
+  time: string;
+  temperature: number;
+  feelsLike: number;
+  precipitation: number;
+  precipitationProbability: number;
+  windSpeed: number;
+  weatherCode: number;
+  description: string;
+}
+
 export interface DailyForecast {
   date: string;
   tempMax: number | null;
@@ -31,6 +52,7 @@ export interface WeatherSourceResult {
   uvIndex: number | null;
   visibility: number | null;
   daily: DailyForecast[];
+  hourly: HourlyForecast[];
   reputation: number;
   error?: string;
 }
@@ -85,6 +107,7 @@ export interface AggregatedWeather {
   validSources: number;
   divergences: Divergence[];
   daily: AggregatedDailyForecast[];
+  hourly: AggregatedHourlyForecast[];
   viticulture: ViticultureIndicators;
   fetchedAt: string;
 }

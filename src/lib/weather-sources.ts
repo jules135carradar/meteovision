@@ -1,4 +1,4 @@
-import { WeatherSourceResult, DailyForecast } from "./types";
+import { WeatherSourceResult, DailyForecast, HourlyForecast } from "./types";
 import { getWeatherDescription } from "./weather-codes";
 
 const USER_AGENT = "MeteoAgregee/1.0 (contact@meteoagregee.fr)";
@@ -41,6 +41,7 @@ export async function fetchOpenMeteoECMWF(
     uvIndex: null,
     visibility: null,
     daily: [],
+    hourly: [],
     reputation,
   };
 
@@ -48,8 +49,9 @@ export async function fetchOpenMeteoECMWF(
     const url =
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure,uv_index,visibility` +
+      `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
-      `&timezone=Europe%2FParis&forecast_days=7`;
+      `&timezone=Europe%2FParis&forecast_days=2`;
 
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -78,6 +80,24 @@ export async function fetchOpenMeteoECMWF(
           precipitation: d.precipitation_sum?.[i] ?? null,
           windSpeed: d.wind_speed_10m_max?.[i] ?? null,
           weatherCode: d.weathercode?.[i] ?? null,
+        });
+      }
+    }
+
+    if (data.hourly) {
+      const h = data.hourly;
+      const now = new Date();
+      for (let i = 0; i < (h.time?.length ?? 0); i++) {
+        const t = new Date(h.time[i]);
+        if (t < now || base.hourly.length >= 24) continue;
+        base.hourly.push({
+          time: h.time[i],
+          temperature: h.temperature_2m?.[i] ?? null,
+          feelsLike: h.apparent_temperature?.[i] ?? null,
+          precipitation: h.precipitation?.[i] ?? null,
+          precipitationProbability: h.precipitation_probability?.[i] ?? null,
+          windSpeed: h.wind_speed_10m?.[i] ?? null,
+          weatherCode: h.weathercode?.[i] ?? null,
         });
       }
     }
@@ -112,6 +132,7 @@ export async function fetchOpenMeteoGFS(
     uvIndex: null,
     visibility: null,
     daily: [],
+    hourly: [],
     reputation,
   };
 
@@ -119,8 +140,9 @@ export async function fetchOpenMeteoGFS(
     const url =
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&models=gfs_seamless` +
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure` +
+      `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
-      `&timezone=Europe%2FParis&forecast_days=7`;
+      `&timezone=Europe%2FParis&forecast_days=2`;
 
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -147,6 +169,24 @@ export async function fetchOpenMeteoGFS(
           precipitation: d.precipitation_sum?.[i] ?? null,
           windSpeed: d.wind_speed_10m_max?.[i] ?? null,
           weatherCode: d.weathercode?.[i] ?? null,
+        });
+      }
+    }
+
+    if (data.hourly) {
+      const h = data.hourly;
+      const now = new Date();
+      for (let i = 0; i < (h.time?.length ?? 0); i++) {
+        const t = new Date(h.time[i]);
+        if (t < now || base.hourly.length >= 24) continue;
+        base.hourly.push({
+          time: h.time[i],
+          temperature: h.temperature_2m?.[i] ?? null,
+          feelsLike: h.apparent_temperature?.[i] ?? null,
+          precipitation: h.precipitation?.[i] ?? null,
+          precipitationProbability: h.precipitation_probability?.[i] ?? null,
+          windSpeed: h.wind_speed_10m?.[i] ?? null,
+          weatherCode: h.weathercode?.[i] ?? null,
         });
       }
     }
@@ -181,6 +221,7 @@ export async function fetchOpenMeteoICON(
     uvIndex: null,
     visibility: null,
     daily: [],
+    hourly: [],
     reputation,
   };
 
@@ -188,8 +229,9 @@ export async function fetchOpenMeteoICON(
     const url =
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&models=icon_seamless` +
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure` +
+      `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
-      `&timezone=Europe%2FParis&forecast_days=7`;
+      `&timezone=Europe%2FParis&forecast_days=2`;
 
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -216,6 +258,24 @@ export async function fetchOpenMeteoICON(
           precipitation: d.precipitation_sum?.[i] ?? null,
           windSpeed: d.wind_speed_10m_max?.[i] ?? null,
           weatherCode: d.weathercode?.[i] ?? null,
+        });
+      }
+    }
+
+    if (data.hourly) {
+      const h = data.hourly;
+      const now = new Date();
+      for (let i = 0; i < (h.time?.length ?? 0); i++) {
+        const t = new Date(h.time[i]);
+        if (t < now || base.hourly.length >= 24) continue;
+        base.hourly.push({
+          time: h.time[i],
+          temperature: h.temperature_2m?.[i] ?? null,
+          feelsLike: h.apparent_temperature?.[i] ?? null,
+          precipitation: h.precipitation?.[i] ?? null,
+          precipitationProbability: h.precipitation_probability?.[i] ?? null,
+          windSpeed: h.wind_speed_10m?.[i] ?? null,
+          weatherCode: h.weathercode?.[i] ?? null,
         });
       }
     }
@@ -250,6 +310,7 @@ export async function fetchYrNo(
     uvIndex: null,
     visibility: null,
     daily: [],
+    hourly: [],
     reputation,
   };
 
@@ -346,6 +407,7 @@ export async function fetchWttrIn(
     uvIndex: null,
     visibility: null,
     daily: [],
+    hourly: [],
     reputation,
   };
 
@@ -418,6 +480,7 @@ export async function fetchOpenWeatherMap(
     uvIndex: null,
     visibility: null,
     daily: [],
+    hourly: [],
     reputation,
   };
 
@@ -506,6 +569,7 @@ export async function fetchWeatherAPI(
     uvIndex: null,
     visibility: null,
     daily: [],
+    hourly: [],
     reputation,
   };
 
