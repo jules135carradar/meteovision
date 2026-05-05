@@ -13,20 +13,20 @@ export default function Home() {
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col">
       {/* Hero */}
-      <section className="flex-1 flex flex-col items-center justify-center px-4 py-16 text-center">
-        <div className="mb-8">
-          <span className="text-8xl">🌤️</span>
+      <section className="flex-1 flex flex-col items-center justify-center px-4 py-10 text-center">
+        <div className="mb-6">
+          <span className="text-6xl sm:text-8xl">🌤️</span>
         </div>
 
-        <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 leading-tight">
+        <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-white mb-4 leading-tight">
           Météo Agrégée
         </h1>
 
-        <p className="text-sky-200 text-lg md:text-xl max-w-2xl mb-3">
+        <p className="text-sky-200 text-base sm:text-lg max-w-2xl mb-2">
           La météo la plus fiable — consolidée depuis{" "}
           <strong className="text-white">5 sources indépendantes</strong> et analysée par l'IA.
         </p>
-        <p className="text-sky-400 text-sm mb-10 max-w-xl">
+        <p className="text-sky-400 text-sm mb-8 max-w-xl">
           Open-Meteo (ECMWF, GFS, ICON) · Yr.no · wttr.in — Synthèse Claude · Mode Pro disponible
         </p>
 
@@ -36,12 +36,12 @@ export default function Home() {
         </div>
 
         {/* Villes exemples */}
-        <div className="mt-8 flex flex-wrap justify-center gap-2">
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
           {EXEMPLES.map((ville) => (
             <a
               key={ville.name}
               href={`/ville/${ville.name.toLowerCase()}?lat=${ville.lat}&lon=${ville.lon}&city=${encodeURIComponent(ville.name)}`}
-              className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sky-300 hover:bg-white/10 hover:text-white text-sm transition-all"
+              className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sky-300 hover:bg-white/10 hover:text-white text-sm transition-all min-h-[44px] flex items-center"
             >
               📍 {ville.name}
             </a>
@@ -50,7 +50,7 @@ export default function Home() {
       </section>
 
       {/* Fonctionnalités */}
-      <section className="max-w-5xl mx-auto px-4 pb-16 grid md:grid-cols-3 gap-6">
+      <section className="max-w-5xl mx-auto px-4 pb-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <FeatureCard
           icon="📡"
           title="5 sources agrégées"
@@ -86,17 +86,9 @@ export default function Home() {
   );
 }
 
-function FeatureCard({
-  icon,
-  title,
-  desc,
-}: {
-  icon: string;
-  title: string;
-  desc: string;
-}) {
+function FeatureCard({ icon, title, desc }: { icon: string; title: string; desc: string }) {
   return (
-    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/8 transition-colors">
+    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/8 transition-colors">
       <span className="text-3xl">{icon}</span>
       <h3 className="text-white font-bold mt-3 mb-2">{title}</h3>
       <p className="text-sky-300 text-sm leading-relaxed">{desc}</p>

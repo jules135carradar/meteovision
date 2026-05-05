@@ -18,23 +18,23 @@ interface Props {
 
 export default function MetierSelector({ value, onChange }: Props) {
   return (
-    <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-5">
+    <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-4 sm:p-5">
       <p className="text-sky-300 text-sm font-medium mb-3">
-        Mode d'affichage — sélectionnez votre profil :
+        Mode d'affichage — votre profil :
       </p>
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {METIERS.map((m) => (
           <button
             key={m.id}
             onClick={() => onChange(m.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-3 py-3 rounded-xl text-sm font-medium transition-all min-h-[48px] justify-center sm:justify-start ${
               value === m.id
                 ? "bg-sky-600 text-white shadow-lg scale-105"
                 : "bg-white/5 text-sky-200 hover:bg-white/10 hover:text-white"
             }`}
           >
-            <span>{m.emoji}</span>
-            {m.label}
+            <span className="text-lg">{m.emoji}</span>
+            <span className="truncate">{m.label}</span>
           </button>
         ))}
       </div>
