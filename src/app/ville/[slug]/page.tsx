@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AggregatedWeather } from "@/lib/types";
 import WeatherCard from "@/components/WeatherCard";
-import SourceTable from "@/components/SourceTable";
 import DivergenceAlert from "@/components/DivergenceAlert";
 import ClaudeSynthesis from "@/components/ClaudeSynthesis";
 import DailyForecast from "@/components/DailyForecast";
@@ -114,9 +113,6 @@ export default function VillePage() {
 
           {/* Prévisions 7 jours */}
           <DailyForecast daily={weather.daily} />
-
-          {/* Tableau des sources */}
-          <SourceTable sources={weather.sources} />
 
           {/* Vote */}
           <VoteButton ville={city} metier={metier} />
