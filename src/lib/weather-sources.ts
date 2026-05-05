@@ -51,7 +51,7 @@ export async function fetchOpenMeteoECMWF(
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure,uv_index,visibility` +
       `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
-      `&timezone=Europe%2FParis&forecast_days=2`;
+      `&timezone=UTC&forecast_days=2`;
 
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -142,7 +142,7 @@ export async function fetchOpenMeteoGFS(
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure` +
       `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
-      `&timezone=Europe%2FParis&forecast_days=2`;
+      `&timezone=UTC&forecast_days=2`;
 
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -231,7 +231,7 @@ export async function fetchOpenMeteoICON(
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure` +
       `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
-      `&timezone=Europe%2FParis&forecast_days=2`;
+      `&timezone=UTC&forecast_days=2`;
 
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
