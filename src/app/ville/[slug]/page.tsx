@@ -13,6 +13,7 @@ import VoteButton from "@/components/VoteButton";
 import MetierSelector from "@/components/MetierSelector";
 import HourlyForecast from "@/components/HourlyForecast";
 import SearchBar from "@/components/SearchBar";
+import WeatherBackground from "@/components/WeatherBackground";
 
 export default function VillePage() {
   const params = useSearchParams();
@@ -81,14 +82,16 @@ export default function VillePage() {
       {loading && <LoadingSkeleton city={city} />}
 
       {error && (
-        <div className="bg-red-900/30 border border-red-500/30 rounded-2xl p-6 text-center">
+        <div className="bg-red-50 border border-red-100 rounded-2xl p-6 text-center">
           <span className="text-4xl">⚠️</span>
-          <p className="text-red-300 font-semibold mt-3">{error}</p>
+          <p className="text-red-500 font-medium mt-3">{error}</p>
         </div>
       )}
 
       {weather && !loading && (
         <>
+          <WeatherBackground weatherCode={weather.weatherCode} windSpeed={weather.windSpeed} />
+
           {/* Sélecteur de métier */}
           <MetierSelector value={metier} onChange={handleMetierChange} />
 
@@ -126,24 +129,24 @@ export default function VillePage() {
 function LoadingSkeleton({ city }: { city: string }) {
   return (
     <div className="space-y-6 animate-pulse">
-      <div className="bg-white/10 rounded-3xl p-8">
+      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
         <div className="flex justify-between mb-6">
           <div>
-            <div className="h-9 bg-white/20 rounded-xl w-48 mb-2" />
-            <div className="h-4 bg-white/10 rounded w-32" />
+            <div className="h-9 bg-slate-100 rounded-xl w-48 mb-2" />
+            <div className="h-4 bg-slate-50 rounded w-32" />
           </div>
-          <div className="h-16 w-16 bg-white/20 rounded-full" />
+          <div className="h-16 w-16 bg-slate-100 rounded-full" />
         </div>
-        <div className="h-16 bg-white/20 rounded-xl w-40 mb-4" />
-        <p className="text-sky-300 mb-6">Chargement des données pour {city}...</p>
+        <div className="h-16 bg-slate-100 rounded-xl w-40 mb-4" />
+        <p className="text-slate-400 mb-6">Chargement des données pour {city}...</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white/5 rounded-2xl p-4 h-24" />
+            <div key={i} className="bg-slate-50 rounded-2xl p-4 h-24" />
           ))}
         </div>
       </div>
-      <div className="bg-white/10 rounded-3xl p-6 h-32" />
-      <div className="bg-white/10 rounded-3xl p-6 h-48" />
+      <div className="bg-white rounded-3xl border border-slate-100 p-6 h-32" />
+      <div className="bg-white rounded-3xl border border-slate-100 p-6 h-48" />
     </div>
   );
 }

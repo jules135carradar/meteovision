@@ -9,10 +9,10 @@ export default function ProModeIndicators({ weather, metier }: Props) {
   if (metier === "grand_public") return null;
 
   return (
-    <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6">
-      <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+    <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+      <h2 className="text-base font-medium text-slate-700 mb-4 flex items-center gap-2">
         🎯 Indicateurs professionnels
-        <span className="text-sm font-normal text-sky-300 capitalize">
+        <span className="text-sm font-normal text-slate-400 capitalize">
           — {METIER_LABELS[metier] ?? metier}
         </span>
       </h2>
@@ -40,14 +40,14 @@ const METIER_LABELS: Record<string, string> = {
 
 function RiskBadge({ level, labels }: { level: string; labels: Record<string, string> }) {
   const colors: Record<string, string> = {
-    aucun: "bg-green-900/40 border-green-500/40 text-green-300",
-    faible: "bg-green-900/40 border-green-500/40 text-green-300",
-    modéré: "bg-yellow-900/40 border-yellow-500/40 text-yellow-300",
-    élevé: "bg-red-900/40 border-red-500/40 text-red-300",
-    favorable: "bg-green-900/40 border-green-500/40 text-green-300",
-    défavorable: "bg-red-900/40 border-red-500/40 text-red-300",
+    aucun: "bg-green-50 border-green-200 text-green-600",
+    faible: "bg-green-50 border-green-200 text-green-600",
+    modéré: "bg-amber-50 border-amber-200 text-amber-600",
+    élevé: "bg-red-50 border-red-200 text-red-600",
+    favorable: "bg-green-50 border-green-200 text-green-600",
+    défavorable: "bg-red-50 border-red-200 text-red-600",
   };
-  const colorClass = colors[level] ?? "bg-gray-900/40 border-gray-500/40 text-gray-300";
+  const colorClass = colors[level] ?? "bg-slate-50 border-slate-200 text-slate-500";
   const label = labels[level] ?? level;
   return (
     <span className={`inline-block rounded-full px-3 py-1 text-sm font-semibold border ${colorClass}`}>
@@ -58,8 +58,8 @@ function RiskBadge({ level, labels }: { level: string; labels: Record<string, st
 
 function ProCard({ icon, title, children }: { icon: string; title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white/5 rounded-2xl p-4">
-      <p className="text-sky-300 text-xs uppercase font-medium mb-2 flex items-center gap-1">
+    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+      <p className="text-sky-500 text-xs uppercase font-medium mb-2 flex items-center gap-1">
         <span>{icon}</span> {title}
       </p>
       {children}
@@ -77,7 +77,7 @@ function ViticulteurPanel({ weather }: { weather: AggregatedWeather }) {
           labels={{ aucun: "Aucun", faible: "Faible", modéré: "Modéré ⚠️", élevé: "ÉLEVÉ 🚨" }}
         />
         {v.minTemperature !== null && (
-          <p className="text-white text-sm mt-2">T° min : {v.minTemperature.toFixed(1)}°C</p>
+          <p className="text-slate-700 text-sm mt-2">T° min : {v.minTemperature.toFixed(1)}°C</p>
         )}
       </ProCard>
 
@@ -87,7 +87,7 @@ function ViticulteurPanel({ weather }: { weather: AggregatedWeather }) {
           labels={{ faible: "Faible", modéré: "Modéré ⚠️", élevé: "ÉLEVÉ 🚨" }}
         />
         {v.mildewFactors.length > 0 && (
-          <ul className="text-sky-200 text-xs mt-2 space-y-0.5">
+          <ul className="text-slate-500 text-xs mt-2 space-y-0.5">
             {v.mildewFactors.map((f) => (
               <li key={f}>• {f}</li>
             ))}
@@ -96,15 +96,15 @@ function ViticulteurPanel({ weather }: { weather: AggregatedWeather }) {
       </ProCard>
 
       <ProCard icon="💧" title="ETP (évapotranspiration)">
-        <p className="text-white text-2xl font-bold">{v.etp} mm/j</p>
+        <p className="text-slate-800 text-2xl font-bold">{v.etp} mm/j</p>
       </ProCard>
 
       <ProCard icon="🌧️" title="Cumul pluie 7 jours">
-        <p className="text-white text-2xl font-bold">{v.rainCumul7d} mm</p>
+        <p className="text-slate-800 text-2xl font-bold">{v.rainCumul7d} mm</p>
       </ProCard>
 
       <ProCard icon="☀️" title="Indice UV">
-        <p className="text-white text-2xl font-bold">{weather.uvIndex.toFixed(1)}</p>
+        <p className="text-slate-800 text-2xl font-bold">{weather.uvIndex.toFixed(1)}</p>
       </ProCard>
 
       <ProCard icon="🧪" title="Fenêtre traitement">
@@ -113,7 +113,7 @@ function ViticulteurPanel({ weather }: { weather: AggregatedWeather }) {
           labels={{ favorable: "Favorable ✓", défavorable: "Défavorable ✗" }}
         />
         {v.treatmentWindow && (
-          <p className="text-sky-200 text-xs mt-2">Pas de pluie + vent faible</p>
+          <p className="text-slate-400 text-xs mt-2">Pas de pluie + vent faible</p>
         )}
       </ProCard>
     </div>
@@ -134,18 +134,18 @@ function AgriculteurPanel({ weather }: { weather: AggregatedWeather }) {
         />
       </ProCard>
       <ProCard icon="💧" title="Cumul pluie 7j">
-        <p className="text-white text-2xl font-bold">{v.rainCumul7d} mm</p>
+        <p className="text-slate-800 text-2xl font-bold">{v.rainCumul7d} mm</p>
       </ProCard>
       <ProCard icon="🧪" title="Fenêtre traitement">
         <RiskBadge
           level={windOkForTreatment && noRain ? "favorable" : "défavorable"}
           labels={{ favorable: "Favorable ✓", défavorable: "Défavorable ✗" }}
         />
-        <p className="text-sky-200 text-xs mt-2">Vent : {Math.round(weather.windSpeed)} km/h</p>
+        <p className="text-slate-400 text-xs mt-2">Vent : {Math.round(weather.windSpeed)} km/h</p>
       </ProCard>
       <ProCard icon="💨" title="Vent">
-        <p className="text-white text-2xl font-bold">{Math.round(weather.windSpeed)} km/h</p>
-        <p className="text-sky-300 text-xs mt-1">
+        <p className="text-slate-800 text-2xl font-bold">{Math.round(weather.windSpeed)} km/h</p>
+        <p className="text-slate-400 text-xs mt-1">
           {weather.windSpeed < 20 ? "✓ OK traitement" : "✗ Trop fort"}
         </p>
       </ProCard>
@@ -165,7 +165,7 @@ function BTPPanel({ weather }: { weather: AggregatedWeather }) {
           level={craneSafe ? "favorable" : "élevé"}
           labels={{ favorable: "Autorisation ✓", élevé: "ARRÊT OBLIGATOIRE 🚨" }}
         />
-        <p className="text-white text-sm mt-2">{Math.round(weather.windSpeed)} km/h</p>
+        <p className="text-slate-700 text-sm mt-2">{Math.round(weather.windSpeed)} km/h</p>
       </ProCard>
       <ProCard icon="🪜" title="Échafaudage (seuil 60 km/h)">
         <RiskBadge
@@ -174,8 +174,8 @@ function BTPPanel({ weather }: { weather: AggregatedWeather }) {
         />
       </ProCard>
       <ProCard icon="🌧️" title="Pluie">
-        <p className="text-white text-2xl font-bold">{weather.precipitation.toFixed(1)} mm</p>
-        <p className="text-sky-300 text-xs mt-1">
+        <p className="text-slate-800 text-2xl font-bold">{weather.precipitation.toFixed(1)} mm</p>
+        <p className="text-slate-400 text-xs mt-1">
           {weather.precipitation < 1 ? "✓ Favorable béton" : "✗ Reporter coulage béton"}
         </p>
       </ProCard>
@@ -201,7 +201,7 @@ function TransportPanel({ weather }: { weather: AggregatedWeather }) {
           level={blackIceRisk ? "élevé" : "aucun"}
           labels={{ aucun: "Faible", élevé: "ÉLEVÉ 🚨" }}
         />
-        <p className="text-sky-200 text-xs mt-2">T°={Math.round(weather.temperature)}°C Hum.={Math.round(weather.humidity)}%</p>
+        <p className="text-slate-400 text-xs mt-2">T°={Math.round(weather.temperature)}°C Hum.={Math.round(weather.humidity)}%</p>
       </ProCard>
       <ProCard icon="🌫️" title="Brouillard">
         <RiskBadge
@@ -209,12 +209,12 @@ function TransportPanel({ weather }: { weather: AggregatedWeather }) {
           labels={{ aucun: "Visibilité OK", élevé: "BROUILLARD ⚠️" }}
         />
         {weather.visibility !== null && (
-          <p className="text-white text-sm mt-2">Visibilité : {weather.visibility.toFixed(1)} km</p>
+          <p className="text-slate-700 text-sm mt-2">Visibilité : {weather.visibility.toFixed(1)} km</p>
         )}
       </ProCard>
       <ProCard icon="💨" title="Rafales">
-        <p className="text-white text-2xl font-bold">{Math.round(weather.windSpeed)} km/h</p>
-        <p className="text-sky-300 text-xs mt-1">
+        <p className="text-slate-800 text-2xl font-bold">{Math.round(weather.windSpeed)} km/h</p>
+        <p className="text-slate-400 text-xs mt-1">
           {weather.windSpeed > 80 ? "⚠️ Danger poids lourds" : "✓ OK"}
         </p>
       </ProCard>
@@ -233,7 +233,7 @@ function EvenementielPanel({ weather }: { weather: AggregatedWeather }) {
           level={tentSafe ? "favorable" : "élevé"}
           labels={{ favorable: "OK ✓", élevé: "DANGER 🚨" }}
         />
-        <p className="text-white text-sm mt-2">{Math.round(weather.windSpeed)} km/h</p>
+        <p className="text-slate-700 text-sm mt-2">{Math.round(weather.windSpeed)} km/h</p>
       </ProCard>
       <ProCard icon="🌧️" title="Pluie">
         <RiskBadge
@@ -242,11 +242,11 @@ function EvenementielPanel({ weather }: { weather: AggregatedWeather }) {
         />
       </ProCard>
       <ProCard icon="🌡️" title="Température ressentie">
-        <p className="text-white text-2xl font-bold">{Math.round(weather.feelsLike)}°C</p>
+        <p className="text-slate-800 text-2xl font-bold">{Math.round(weather.feelsLike)}°C</p>
       </ProCard>
       <ProCard icon="☀️" title="Indice UV">
-        <p className="text-white text-2xl font-bold">{weather.uvIndex.toFixed(1)}</p>
-        <p className="text-sky-300 text-xs mt-1">
+        <p className="text-slate-800 text-2xl font-bold">{weather.uvIndex.toFixed(1)}</p>
+        <p className="text-slate-400 text-xs mt-1">
           {weather.uvIndex >= 6 ? "⚠️ Protection solaire" : "✓ Faible"}
         </p>
       </ProCard>
@@ -259,17 +259,17 @@ function NautismePanel({ weather }: { weather: AggregatedWeather }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
       <ProCard icon="⚓" title="Force du vent (Beaufort)">
-        <p className="text-white text-3xl font-bold">Bf {beaufort}</p>
-        <p className="text-sky-300 text-sm mt-1">{Math.round(weather.windSpeed)} km/h</p>
+        <p className="text-slate-800 text-3xl font-bold">Bf {beaufort}</p>
+        <p className="text-slate-400 text-sm mt-1">{Math.round(weather.windSpeed)} km/h</p>
       </ProCard>
       <ProCard icon="📊" title="Pression atmosphérique">
-        <p className="text-white text-2xl font-bold">{Math.round(weather.pressure)} hPa</p>
-        <p className="text-sky-300 text-xs mt-1">
+        <p className="text-slate-800 text-2xl font-bold">{Math.round(weather.pressure)} hPa</p>
+        <p className="text-slate-400 text-xs mt-1">
           {weather.pressure < 1005 ? "⚠️ Dépression" : weather.pressure > 1020 ? "✓ Anticyclone" : "Stable"}
         </p>
       </ProCard>
       <ProCard icon="👁️" title="Visibilité">
-        <p className="text-white text-2xl font-bold">
+        <p className="text-slate-800 text-2xl font-bold">
           {weather.visibility !== null ? `${weather.visibility.toFixed(1)} km` : "N/D"}
         </p>
       </ProCard>
@@ -288,19 +288,19 @@ function PompierPanel({ weather }: { weather: AggregatedWeather }) {
         />
       </ProCard>
       <ProCard icon="💨" title="Vent (propagation)">
-        <p className="text-white text-2xl font-bold">{Math.round(weather.windSpeed)} km/h</p>
-        <p className="text-sky-300 text-xs mt-1">
+        <p className="text-slate-800 text-2xl font-bold">{Math.round(weather.windSpeed)} km/h</p>
+        <p className="text-slate-400 text-xs mt-1">
           {weather.windSpeed > 40 ? "⚠️ Propagation rapide" : "✓ Limité"}
         </p>
       </ProCard>
       <ProCard icon="💧" title="Humidité">
-        <p className="text-white text-2xl font-bold">{Math.round(weather.humidity)}%</p>
-        <p className="text-sky-300 text-xs mt-1">
+        <p className="text-slate-800 text-2xl font-bold">{Math.round(weather.humidity)}%</p>
+        <p className="text-slate-400 text-xs mt-1">
           {weather.humidity < 30 ? "⚠️ Végétation sèche" : "✓ OK"}
         </p>
       </ProCard>
       <ProCard icon="🌡️" title="Température">
-        <p className="text-white text-2xl font-bold">{Math.round(weather.temperature)}°C</p>
+        <p className="text-slate-800 text-2xl font-bold">{Math.round(weather.temperature)}°C</p>
       </ProCard>
     </div>
   );
