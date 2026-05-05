@@ -350,31 +350,49 @@ export async function fetchYrNo(
         .replace(/\b\w/g, (c: string) => c.toUpperCase());
     }
 
-    // Daily aggregation from timeseries
-    const dailyMap = new Map<string, { temps: number[]; precip: number; windSpeeds: number[] }>();
+    // Agrégation journalière + horaire depuis le timeseries
+    const dailyMap: Record<string, { temps: number[]; precip: number; windSpeeds: number[] }> = {};
+    const now = new Date();
+
     for (const entry of timeseries) {
+      const entryTime = new Date(entry.time);
       const date = entry.time.split("T")[0];
-      if (!dailyMap.has(date)) dailyMap.set(date, { temps: [], precip: 0, windSpeeds: [] });
-      const d = dailyMap.get(date)!;
       const entryDetails = entry.data?.instant?.details;
+
+      // Daily
+      if (!dailyMap[date]) dailyMap[date] = { temps: [], precip: 0, windSpeeds: [] };
+      const d = dailyMap[date];
       if (entryDetails?.air_temperature !== undefined) d.temps.push(entryDetails.air_temperature);
       if (entryDetails?.wind_speed !== undefined) d.windSpeeds.push(entryDetails.wind_speed * 3.6);
-      const precip6h = entry.data?.next_6_hours?.details?.precipitation_amount;
-      if (precip6h) d.precip += precip6h;
+      const precip1h = entry.data?.next_1_hours?.details?.precipitation_amount;
+      if (precip1h) d.precip += precip1h;
+
+      // Horaire (24 prochaines heures)
+      if (entryTime >= now && base.hourly.length < 24 && entryDetails) {
+        const precip = entry.data?.next_1_hours?.details?.precipitation_amount ?? null;
+        base.hourly.push({
+          time: entry.time,
+          temperature: entryDetails.air_temperature ?? null,
+          feelsLike: null,
+          precipitation: precip,
+          precipitationProbability: null,
+          windSpeed: entryDetails.wind_speed !== undefined ? entryDetails.wind_speed * 3.6 : null,
+          weatherCode: null,
+        });
+      }
     }
 
-    const sortedDates = Array.from(dailyMap.keys()).sort().slice(0, 7);
+    const sortedDates = Object.keys(dailyMap).sort().slice(0, 7);
     for (const date of sortedDates) {
-      const d = dailyMap.get(date)!;
-      const forecast: DailyForecast = {
+      const d = dailyMap[date];
+      base.daily.push({
         date,
         tempMax: d.temps.length ? Math.max(...d.temps) : null,
         tempMin: d.temps.length ? Math.min(...d.temps) : null,
         precipitation: d.precip > 0 ? d.precip : null,
         windSpeed: d.windSpeeds.length ? Math.max(...d.windSpeeds) : null,
         weatherCode: null,
-      };
-      base.daily.push(forecast);
+      });
     }
   } catch (err) {
     base.error = err instanceof Error ? err.message : "Erreur inconnue";
