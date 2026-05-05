@@ -78,10 +78,12 @@ function aggregateHourly(sources: WeatherSourceResult[]): AggregatedHourlyForeca
   for (const source of valid) {
     const weight = source.reputation / 100;
     for (const h of source.hourly) {
-      if (!timeMap[h.time]) {
-        timeMap[h.time] = { temps: [], feelsLike: [], precips: [], precipProbs: [], windSpeeds: [], codes: [] };
+      // Normalize to UTC ISO hour key so all sources group correctly regardless of timezone format
+      const key = new Date(h.time).toISOString().slice(0, 13) + ":00:00.000Z";
+      if (!timeMap[key]) {
+        timeMap[key] = { temps: [], feelsLike: [], precips: [], precipProbs: [], windSpeeds: [], codes: [] };
       }
-      const acc = timeMap[h.time];
+      const acc = timeMap[key];
       if (h.temperature !== null) acc.temps.push({ value: h.temperature, weight });
       if (h.feelsLike !== null) acc.feelsLike.push({ value: h.feelsLike, weight });
       if (h.precipitation !== null) acc.precips.push({ value: h.precipitation, weight });
