@@ -3,6 +3,9 @@ import {
   fetchOpenMeteoECMWF,
   fetchOpenMeteoGFS,
   fetchOpenMeteoICON,
+  fetchOpenMeteoMF,
+  fetchOpenMeteoUKMO,
+  fetchOpenMeteoGEM,
   fetchYrNo,
   fetchWttrIn,
   fetchOpenWeatherMap,
@@ -35,17 +38,20 @@ export async function GET(request: NextRequest) {
   const reputations = await getReputations();
 
   // Interroger toutes les sources en parallèle
-  const [ecmwf, gfs, icon, yrno, wttr, owm, wapi] = await Promise.allSettled([
+  const [ecmwf, gfs, icon, mf, ukmo, gem, yrno, wttr, owm, wapi] = await Promise.allSettled([
     fetchOpenMeteoECMWF(lat, lon, reputations["open-meteo-ecmwf"] ?? 50),
     fetchOpenMeteoGFS(lat, lon, reputations["open-meteo-gfs"] ?? 50),
     fetchOpenMeteoICON(lat, lon, reputations["open-meteo-icon"] ?? 50),
+    fetchOpenMeteoMF(lat, lon, reputations["open-meteo-mf"] ?? 50),
+    fetchOpenMeteoUKMO(lat, lon, reputations["open-meteo-ukmo"] ?? 50),
+    fetchOpenMeteoGEM(lat, lon, reputations["open-meteo-gem"] ?? 50),
     fetchYrNo(lat, lon, reputations["yr-no"] ?? 50),
     fetchWttrIn(lat, lon, reputations["wttr-in"] ?? 50),
     fetchOpenWeatherMap(lat, lon, reputations["openweathermap"] ?? 50),
     fetchWeatherAPI(lat, lon, reputations["weatherapi"] ?? 50),
   ]);
 
-  const sources = [ecmwf, gfs, icon, yrno, wttr, owm, wapi]
+  const sources = [ecmwf, gfs, icon, mf, ukmo, gem, yrno, wttr, owm, wapi]
     .map((result) => {
       if (result.status === "fulfilled") return result.value;
       // Si la promesse elle-même a rejeté (ne devrait pas arriver)

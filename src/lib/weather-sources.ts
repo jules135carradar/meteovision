@@ -279,10 +279,10 @@ export async function fetchOpenMeteoICON(
 
     if (data.hourly) {
       const h = data.hourly;
-      const now = new Date();
+      const hourStart = currentUTCHourStart();
       for (let i = 0; i < (h.time?.length ?? 0); i++) {
-        const t = new Date(h.time[i] + "Z");
-        if (t < now || base.hourly.length >= 24) continue;
+        const t = parseOpenMeteoUTC(h.time[i]);
+        if (t < hourStart || base.hourly.length >= 24) continue;
         base.hourly.push({
           time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
@@ -300,6 +300,91 @@ export async function fetchOpenMeteoICON(
 
   return base;
 }
+
+// ────────────────────────────────────────────────────────────
+// Open-Meteo générique — Météo France, UK Met Office, GEM Canada
+// ────────────────────────────────────────────────────────────
+async function fetchOpenMeteoModel(
+  lat: number, lon: number, reputation: number,
+  sourceId: string, displayName: string, model: string
+): Promise<WeatherSourceResult> {
+  const base: WeatherSourceResult = {
+    source: sourceId, displayName, url: "https://open-meteo.com",
+    temperature: null, feelsLike: null, humidity: null, windSpeed: null,
+    windDirection: null, precipitation: null, description: null,
+    weatherCode: null, pressure: null, uvIndex: null, visibility: null,
+    daily: [], hourly: [], reputation,
+  };
+
+  try {
+    const url =
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&models=${model}` +
+      `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure` +
+      `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
+      `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
+      `&timezone=UTC&forecast_days=2`;
+
+    const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    const c = data.current;
+    base.temperature = c.temperature_2m ?? null;
+    base.feelsLike = c.apparent_temperature ?? null;
+    base.humidity = c.relative_humidity_2m ?? null;
+    base.windSpeed = c.wind_speed_10m ?? null;
+    base.windDirection = c.wind_direction_10m ?? null;
+    base.precipitation = c.precipitation ?? null;
+    base.weatherCode = c.weathercode ?? null;
+    base.pressure = c.surface_pressure ?? null;
+    base.description = getWeatherDescription(base.weatherCode);
+
+    if (data.daily) {
+      const d = data.daily;
+      for (let i = 0; i < (d.time?.length ?? 0); i++) {
+        base.daily.push({
+          date: d.time[i],
+          tempMax: d.temperature_2m_max?.[i] ?? null,
+          tempMin: d.temperature_2m_min?.[i] ?? null,
+          precipitation: d.precipitation_sum?.[i] ?? null,
+          windSpeed: d.wind_speed_10m_max?.[i] ?? null,
+          weatherCode: d.weathercode?.[i] ?? null,
+        });
+      }
+    }
+
+    if (data.hourly) {
+      const h = data.hourly;
+      const hourStart = currentUTCHourStart();
+      for (let i = 0; i < (h.time?.length ?? 0); i++) {
+        const t = parseOpenMeteoUTC(h.time[i]);
+        if (t < hourStart || base.hourly.length >= 24) continue;
+        base.hourly.push({
+          time: t.toISOString(),
+          temperature: h.temperature_2m?.[i] ?? null,
+          feelsLike: h.apparent_temperature?.[i] ?? null,
+          precipitation: h.precipitation?.[i] ?? null,
+          precipitationProbability: h.precipitation_probability?.[i] ?? null,
+          windSpeed: h.wind_speed_10m?.[i] ?? null,
+          weatherCode: h.weathercode?.[i] ?? null,
+        });
+      }
+    }
+  } catch (err) {
+    base.error = err instanceof Error ? err.message : "Erreur inconnue";
+  }
+
+  return base;
+}
+
+export const fetchOpenMeteoMF = (lat: number, lon: number, rep: number) =>
+  fetchOpenMeteoModel(lat, lon, rep, "open-meteo-mf", "Météo France (ARPÈGE)", "meteofrance_seamless");
+
+export const fetchOpenMeteoUKMO = (lat: number, lon: number, rep: number) =>
+  fetchOpenMeteoModel(lat, lon, rep, "open-meteo-ukmo", "UK Met Office", "ukmo_seamless");
+
+export const fetchOpenMeteoGEM = (lat: number, lon: number, rep: number) =>
+  fetchOpenMeteoModel(lat, lon, rep, "open-meteo-gem", "GEM Canada", "gem_seamless");
 
 // ────────────────────────────────────────────────────────────
 // Yr.no (service météo norvégien, modèle NWP)
