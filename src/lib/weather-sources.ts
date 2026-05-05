@@ -3,6 +3,21 @@ import { getWeatherDescription } from "./weather-codes";
 
 const USER_AGENT = "MeteoAgregee/1.0 (contact@meteoagregee.fr)";
 
+// Parse "YYYY-MM-DDTHH:MM" from Open-Meteo (timezone=UTC) into a proper UTC Date.
+// Using Date.UTC avoids any server-timezone ambiguity.
+function parseOpenMeteoUTC(s: string): Date {
+  const [d, t] = s.split("T");
+  const [yr, mo, da] = d.split("-").map(Number);
+  const [hr] = t.split(":").map(Number);
+  return new Date(Date.UTC(yr, mo - 1, da, hr, 0, 0, 0));
+}
+
+// Current UTC hour boundary — used to filter past slots while keeping the current hour.
+function currentUTCHourStart(): Date {
+  const n = new Date();
+  return new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate(), n.getUTCHours(), 0, 0, 0));
+}
+
 async function fetchWithTimeout(
   url: string,
   options: RequestInit = {},
@@ -86,11 +101,10 @@ export async function fetchOpenMeteoECMWF(
 
     if (data.hourly) {
       const h = data.hourly;
-      const now = new Date();
+      const hourStart = currentUTCHourStart();
       for (let i = 0; i < (h.time?.length ?? 0); i++) {
-        // Append "Z" to force UTC parsing — Open-Meteo returns "2025-05-05T19:00" without timezone
-        const t = new Date(h.time[i] + "Z");
-        if (t < now || base.hourly.length >= 24) continue;
+        const t = parseOpenMeteoUTC(h.time[i]);
+        if (t < hourStart || base.hourly.length >= 24) continue;
         base.hourly.push({
           time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
@@ -353,10 +367,10 @@ export async function fetchYrNo(
 
     // Agrégation journalière + horaire depuis le timeseries
     const dailyMap: Record<string, { temps: number[]; precip: number; windSpeeds: number[] }> = {};
-    const now = new Date();
+    const yrHourStart = currentUTCHourStart();
 
     for (const entry of timeseries) {
-      const entryTime = new Date(entry.time);
+      const entryTime = new Date(entry.time); // Yr.no times have explicit Z — safe to parse directly
       const date = entry.time.split("T")[0];
       const entryDetails = entry.data?.instant?.details;
 
@@ -368,8 +382,8 @@ export async function fetchYrNo(
       const precip1h = entry.data?.next_1_hours?.details?.precipitation_amount;
       if (precip1h) d.precip += precip1h;
 
-      // Horaire (24 prochaines heures)
-      if (entryTime >= now && base.hourly.length < 24 && entryDetails) {
+      // Horaire (24 prochaines heures) — filter from current UTC hour start
+      if (entryTime >= yrHourStart && base.hourly.length < 24 && entryDetails) {
         const precip = entry.data?.next_1_hours?.details?.precipitation_amount ?? null;
         base.hourly.push({
           time: new Date(entry.time).toISOString(),
