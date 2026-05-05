@@ -93,8 +93,11 @@ function aggregateHourly(sources: WeatherSourceResult[]): AggregatedHourlyForeca
     }
   }
 
+  const currentHourMs = new Date(new Date().toISOString().slice(0, 13) + ":00:00.000Z").getTime();
+
   return Object.keys(timeMap)
     .sort()
+    .filter((key) => new Date(key).getTime() >= currentHourMs)
     .slice(0, 24)
     .map((time) => {
       const acc = timeMap[time];

@@ -88,10 +88,11 @@ export async function fetchOpenMeteoECMWF(
       const h = data.hourly;
       const now = new Date();
       for (let i = 0; i < (h.time?.length ?? 0); i++) {
-        const t = new Date(h.time[i]);
+        // Append "Z" to force UTC parsing — Open-Meteo returns "2025-05-05T19:00" without timezone
+        const t = new Date(h.time[i] + "Z");
         if (t < now || base.hourly.length >= 24) continue;
         base.hourly.push({
-          time: h.time[i],
+          time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
           feelsLike: h.apparent_temperature?.[i] ?? null,
           precipitation: h.precipitation?.[i] ?? null,
@@ -177,10 +178,10 @@ export async function fetchOpenMeteoGFS(
       const h = data.hourly;
       const now = new Date();
       for (let i = 0; i < (h.time?.length ?? 0); i++) {
-        const t = new Date(h.time[i]);
+        const t = new Date(h.time[i] + "Z");
         if (t < now || base.hourly.length >= 24) continue;
         base.hourly.push({
-          time: h.time[i],
+          time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
           feelsLike: h.apparent_temperature?.[i] ?? null,
           precipitation: h.precipitation?.[i] ?? null,
@@ -266,10 +267,10 @@ export async function fetchOpenMeteoICON(
       const h = data.hourly;
       const now = new Date();
       for (let i = 0; i < (h.time?.length ?? 0); i++) {
-        const t = new Date(h.time[i]);
+        const t = new Date(h.time[i] + "Z");
         if (t < now || base.hourly.length >= 24) continue;
         base.hourly.push({
-          time: h.time[i],
+          time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
           feelsLike: h.apparent_temperature?.[i] ?? null,
           precipitation: h.precipitation?.[i] ?? null,
@@ -371,7 +372,7 @@ export async function fetchYrNo(
       if (entryTime >= now && base.hourly.length < 24 && entryDetails) {
         const precip = entry.data?.next_1_hours?.details?.precipitation_amount ?? null;
         base.hourly.push({
-          time: entry.time,
+          time: new Date(entry.time).toISOString(),
           temperature: entryDetails.air_temperature ?? null,
           feelsLike: null,
           precipitation: precip,
