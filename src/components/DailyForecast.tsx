@@ -193,21 +193,21 @@ function DayRow({
 
       {/* Expanded hourly detail */}
       {isExpanded && hourly.length > 0 && (
-        <div className="bg-slate-50/60 border-t border-slate-100 px-5 py-3 overflow-x-auto">
-          <table className="w-full text-xs min-w-[360px]">
+        <div className="border-t border-emerald-100 overflow-x-auto">
+          <table className="w-full text-xs min-w-[420px]">
             <thead>
-              <tr className="text-slate-400 uppercase tracking-wide text-[10px]">
-                <th className="text-left py-1 pr-3 font-medium">Heure</th>
-                <th className="text-left py-1 pr-3 font-medium w-8"></th>
-                <th className="text-right py-1 pr-3 font-medium">Température</th>
-                <th className="text-right py-1 pr-3 font-medium">Ressenti</th>
-                <th className="text-right py-1 pr-3 font-medium">Humidité</th>
-                <th className="text-right py-1 pr-3 font-medium">Pluie</th>
-                <th className="text-right py-1 pr-3 font-medium">Probabilité</th>
-                <th className="text-right py-1 font-medium">Vent</th>
+              <tr className="bg-emerald-50/80 text-emerald-700 uppercase tracking-wide text-[10px] border-b border-emerald-100">
+                <th className="text-left py-2 px-5 font-semibold">Heure</th>
+                <th className="text-left py-2 pr-3 font-semibold w-8"></th>
+                <th className="text-right py-2 pr-3 font-semibold">Température</th>
+                <th className="text-right py-2 pr-3 font-semibold">Ressenti</th>
+                <th className="text-right py-2 pr-3 font-semibold">Humidité</th>
+                <th className="text-right py-2 pr-3 font-semibold">Pluie</th>
+                <th className="text-right py-2 pr-3 font-semibold">Probabilité</th>
+                <th className="text-right py-2 px-5 font-semibold">Vent</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 bg-white">
               {hourly.map((h) => (
                 <HourRow key={h.time} hour={h} />
               ))}
@@ -231,42 +231,42 @@ function HourRow({ hour }: { hour: AggregatedHourlyForecast }) {
   const isNight = localHour < 6 || localHour >= 22;
 
   return (
-    <tr className={`transition-colors hover:bg-white ${isNight ? "opacity-40" : ""}`}>
-      <td className="py-2 pr-3 text-slate-500 font-medium tabular-nums">{hrLabel}</td>
-      <td className="py-2 pr-3 text-base">{getWeatherIcon(hour.weatherCode, localHour)}</td>
-      <td className="py-2 pr-3 text-right text-slate-700 font-semibold tabular-nums">
+    <tr className={`transition-colors hover:bg-slate-50 ${isNight ? "bg-slate-50/40 opacity-60" : ""}`}>
+      <td className="py-2.5 px-5 text-slate-700 font-bold tabular-nums">{hrLabel}</td>
+      <td className="py-2.5 pr-3 text-base">{getWeatherIcon(hour.weatherCode, localHour)}</td>
+      <td className="py-2.5 pr-3 text-right text-slate-900 font-bold tabular-nums">
         {Math.round(hour.temperature)}°
       </td>
-      <td className="py-2 pr-3 text-right text-slate-400 tabular-nums">
+      <td className="py-2.5 pr-3 text-right text-slate-600 tabular-nums">
         {Math.round(hour.feelsLike)}°
       </td>
-      <td className="py-2 pr-3 text-right tabular-nums">
+      <td className="py-2.5 pr-3 text-right tabular-nums">
         {hour.humidity > 0 ? (
-          <span className="text-slate-500">{Math.round(hour.humidity)}%</span>
+          <span className="text-slate-600">{Math.round(hour.humidity)} %</span>
         ) : (
           <span className="text-slate-300">—</span>
         )}
       </td>
-      <td className="py-2 pr-3 text-right tabular-nums">
+      <td className="py-2.5 pr-3 text-right tabular-nums">
         {hour.precipitation > 0.05 ? (
-          <span className="text-emerald-500 font-medium">
+          <span className="text-emerald-600 font-semibold">
             {hour.precipitation.toFixed(1)} mm
           </span>
         ) : (
           <span className="text-slate-300">—</span>
         )}
       </td>
-      <td className="py-2 pr-3 text-right tabular-nums">
+      <td className="py-2.5 pr-3 text-right tabular-nums">
         {hour.precipitationProbability > 5 ? (
-          <span className="text-slate-400">{Math.round(hour.precipitationProbability)}%</span>
+          <span className="text-slate-600">{Math.round(hour.precipitationProbability)} %</span>
         ) : (
           <span className="text-slate-300">—</span>
         )}
       </td>
-      <td className="py-2 text-right text-slate-400 tabular-nums whitespace-nowrap">
+      <td className="py-2.5 px-5 text-right text-slate-600 tabular-nums whitespace-nowrap">
         {Math.round(hour.windSpeed)} km/h
         {hour.windDirection > 0 && (
-          <span className="text-slate-300 ml-1 text-xs">{windArrow(hour.windDirection)}</span>
+          <span className="text-slate-400 ml-1 font-medium">{windArrow(hour.windDirection)}</span>
         )}
       </td>
     </tr>
