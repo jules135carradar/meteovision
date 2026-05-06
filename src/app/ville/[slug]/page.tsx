@@ -112,7 +112,7 @@ export default function VillePage() {
           <ClaudeSynthesis weather={weather} metier={metier} />
 
           {/* Prévisions 7 jours */}
-          <DailyForecast daily={weather.daily} />
+          <DailyForecast daily={weather.daily} hourly={weather.hourly} />
 
           {/* Vote */}
           <VoteButton ville={city} metier={metier} />

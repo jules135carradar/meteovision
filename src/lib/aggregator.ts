@@ -98,7 +98,7 @@ function aggregateHourly(sources: WeatherSourceResult[]): AggregatedHourlyForeca
   return Object.keys(timeMap)
     .sort()
     .filter((key) => new Date(key).getTime() >= currentHourMs)
-    .slice(0, 24)
+    .slice(0, 7 * 24)
     .map((time) => {
       const acc = timeMap[time];
       const codeFreq = acc.codes.reduce<Record<number, number>>((r, c) => { r[c] = (r[c] ?? 0) + 1; return r; }, {});
