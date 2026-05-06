@@ -66,7 +66,7 @@ export async function fetchOpenMeteoECMWF(
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure,uv_index,visibility` +
       `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
-      `&timezone=UTC&forecast_days=2`;
+      `&timezone=UTC&forecast_days=7`;
 
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -104,7 +104,7 @@ export async function fetchOpenMeteoECMWF(
       const hourStart = currentUTCHourStart();
       for (let i = 0; i < (h.time?.length ?? 0); i++) {
         const t = parseOpenMeteoUTC(h.time[i]);
-        if (t < hourStart || base.hourly.length >= 24) continue;
+        if (t < hourStart || base.hourly.length >= 168) continue;
         base.hourly.push({
           time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
@@ -157,7 +157,7 @@ export async function fetchOpenMeteoGFS(
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure` +
       `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
-      `&timezone=UTC&forecast_days=2`;
+      `&timezone=UTC&forecast_days=7`;
 
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -190,10 +190,10 @@ export async function fetchOpenMeteoGFS(
 
     if (data.hourly) {
       const h = data.hourly;
-      const now = new Date();
+      const hourStart = currentUTCHourStart();
       for (let i = 0; i < (h.time?.length ?? 0); i++) {
-        const t = new Date(h.time[i] + "Z");
-        if (t < now || base.hourly.length >= 24) continue;
+        const t = parseOpenMeteoUTC(h.time[i]);
+        if (t < hourStart || base.hourly.length >= 168) continue;
         base.hourly.push({
           time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
@@ -246,7 +246,7 @@ export async function fetchOpenMeteoICON(
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure` +
       `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
-      `&timezone=UTC&forecast_days=2`;
+      `&timezone=UTC&forecast_days=7`;
 
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -282,7 +282,7 @@ export async function fetchOpenMeteoICON(
       const hourStart = currentUTCHourStart();
       for (let i = 0; i < (h.time?.length ?? 0); i++) {
         const t = parseOpenMeteoUTC(h.time[i]);
-        if (t < hourStart || base.hourly.length >= 24) continue;
+        if (t < hourStart || base.hourly.length >= 168) continue;
         base.hourly.push({
           time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
@@ -322,7 +322,7 @@ async function fetchOpenMeteoModel(
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure` +
       `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
-      `&timezone=UTC&forecast_days=2`;
+      `&timezone=UTC&forecast_days=7`;
 
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -358,7 +358,7 @@ async function fetchOpenMeteoModel(
       const hourStart = currentUTCHourStart();
       for (let i = 0; i < (h.time?.length ?? 0); i++) {
         const t = parseOpenMeteoUTC(h.time[i]);
-        if (t < hourStart || base.hourly.length >= 24) continue;
+        if (t < hourStart || base.hourly.length >= 168) continue;
         base.hourly.push({
           time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
@@ -468,7 +468,7 @@ export async function fetchYrNo(
       if (precip1h) d.precip += precip1h;
 
       // Horaire (24 prochaines heures) — filter from current UTC hour start
-      if (entryTime >= yrHourStart && base.hourly.length < 24 && entryDetails) {
+      if (entryTime >= yrHourStart && base.hourly.length < 168 && entryDetails) {
         const precip = entry.data?.next_1_hours?.details?.precipitation_amount ?? null;
         base.hourly.push({
           time: new Date(entry.time).toISOString(),
