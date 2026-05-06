@@ -73,7 +73,7 @@ export default function HourlyForecast({ hourly }: { hourly: AggregatedHourlyFor
               <th style={S.th}>Ressenti</th>
               <th style={S.th}>Humidité</th>
               <th style={S.th}>Pluie</th>
-              <th style={S.th}>Probabilité</th>
+              <th style={S.th}>Prob. pluie</th>
               <th style={S.th}>Vent</th>
             </tr>
           </thead>

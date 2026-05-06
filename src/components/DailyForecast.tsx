@@ -197,7 +197,7 @@ function DayRow({
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 420, fontSize: 12 }}>
             <thead>
               <tr>
-                {["Heure", "", "Température", "Ressenti", "Humidité", "Pluie", "Probabilité", "Vent"].map((h, i) => (
+                {["Heure", "", "Température", "Ressenti", "Humidité", "Pluie", "Prob. pluie", "Vent"].map((h, i) => (
                   <th key={i} style={{
                     padding: "9px 12px",
                     fontSize: 10,
