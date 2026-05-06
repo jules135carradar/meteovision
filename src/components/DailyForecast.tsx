@@ -199,11 +199,11 @@ function DayRow({
               <tr className="text-slate-400 uppercase tracking-wide text-[10px]">
                 <th className="text-left py-1 pr-3 font-medium">Heure</th>
                 <th className="text-left py-1 pr-3 font-medium w-8"></th>
-                <th className="text-right py-1 pr-3 font-medium">Temp.</th>
+                <th className="text-right py-1 pr-3 font-medium">Température</th>
                 <th className="text-right py-1 pr-3 font-medium">Ressenti</th>
                 <th className="text-right py-1 pr-3 font-medium">Humidité</th>
                 <th className="text-right py-1 pr-3 font-medium">Pluie</th>
-                <th className="text-right py-1 pr-3 font-medium">Prob.</th>
+                <th className="text-right py-1 pr-3 font-medium">Probabilité</th>
                 <th className="text-right py-1 font-medium">Vent</th>
               </tr>
             </thead>
@@ -225,9 +225,10 @@ function windArrow(deg: number): string {
 }
 
 function HourRow({ hour }: { hour: AggregatedHourlyForecast }) {
-  const hrNum = parseInt(hour.time.slice(11, 13));
-  const hrLabel = hour.time.slice(11, 16);
-  const isNight = hrNum < 6 || hrNum >= 22;
+  const time = new Date(hour.time);
+  const hrLabel = time.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  const localHour = time.getHours();
+  const isNight = localHour < 6 || localHour >= 22;
 
   return (
     <tr className={`transition-colors hover:bg-white ${isNight ? "opacity-40" : ""}`}>

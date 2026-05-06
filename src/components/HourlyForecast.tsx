@@ -9,7 +9,6 @@ function windDir(deg: number): string {
 }
 
 export default function HourlyForecast({ hourly }: { hourly: AggregatedHourlyForecast[] }) {
-  // Next 24h only — the 7-day hourly is used by DailyForecast for expanded day detail
   const next24 = hourly.slice(0, 24);
   if (next24.length === 0) return null;
 
@@ -17,16 +16,16 @@ export default function HourlyForecast({ hourly }: { hourly: AggregatedHourlyFor
     <div className="bg-white rounded-2xl border border-slate-100/70 overflow-hidden">
       <h2 className="text-base font-medium text-slate-700 px-5 pt-5 pb-2">Heure par heure</h2>
       <div className="overflow-x-auto">
-        <table className="w-full text-xs min-w-[460px]">
+        <table className="w-full text-xs min-w-[520px]">
           <thead>
             <tr className="text-slate-400 uppercase tracking-wide text-[10px] border-b border-slate-50">
               <th className="text-left py-2 px-5 font-medium">Heure</th>
               <th className="text-left py-2 pr-3 font-medium w-8"></th>
-              <th className="text-right py-2 pr-3 font-medium">Temp.</th>
+              <th className="text-right py-2 pr-3 font-medium">Température</th>
               <th className="text-right py-2 pr-3 font-medium">Ressenti</th>
               <th className="text-right py-2 pr-3 font-medium">Humidité</th>
               <th className="text-right py-2 pr-3 font-medium">Pluie</th>
-              <th className="text-right py-2 pr-3 font-medium">Prob.</th>
+              <th className="text-right py-2 pr-3 font-medium">Probabilité</th>
               <th className="text-right py-2 px-5 font-medium">Vent</th>
             </tr>
           </thead>
@@ -43,10 +42,10 @@ export default function HourlyForecast({ hourly }: { hourly: AggregatedHourlyFor
 
 function HourRow({ hour }: { hour: AggregatedHourlyForecast }) {
   const time = new Date(hour.time);
-  const hrLabel = hour.time.slice(11, 16);
+  const hrLabel = time.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
   const isNow = Math.abs(time.getTime() - Date.now()) < 1800000;
-  const hrNum = parseInt(hour.time.slice(11, 13));
-  const isNight = hrNum < 6 || hrNum >= 22;
+  const localHour = time.getHours();
+  const isNight = localHour < 6 || localHour >= 22;
 
   return (
     <tr
@@ -56,7 +55,7 @@ function HourRow({ hour }: { hour: AggregatedHourlyForecast }) {
     >
       <td className="py-2.5 px-5 tabular-nums">
         <span className={`font-semibold ${isNow ? "text-emerald-600" : "text-slate-600"}`}>
-          {isNow ? "Maint." : hrLabel}
+          {isNow ? "Maintenant" : hrLabel}
         </span>
       </td>
 
