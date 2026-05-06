@@ -7,7 +7,7 @@ export default function HourlyForecast({ hourly }: { hourly: AggregatedHourlyFor
   if (hourly.length === 0) return null;
 
   return (
-    <div className="bg-white rounded-3xl p-5 md:p-6 border border-slate-100 shadow-sm">
+    <div className="bg-white rounded-2xl p-5 md:p-6 border border-slate-100/70">
       <h2 className="text-base font-medium text-slate-700 mb-4">Heure par heure</h2>
       <div className="flex gap-2.5 overflow-x-auto pb-1">
         {hourly.map((h) => <HourCard key={h.time} hour={h} />)}
@@ -23,7 +23,7 @@ function HourCard({ hour }: { hour: AggregatedHourlyForecast }) {
   const isNow = Math.abs(time.getTime() - Date.now()) < 1800000;
 
   return (
-    <div className={`flex flex-col items-center gap-1.5 rounded-2xl p-3 flex-shrink-0 w-[72px] transition-colors border ${
+    <div className={`flex flex-col items-center gap-1.5 rounded-xl p-3 flex-shrink-0 w-[72px] transition-colors border ${
       isNow
         ? "bg-sky-50 border-sky-200"
         : "bg-slate-50 border-transparent hover:bg-slate-100"

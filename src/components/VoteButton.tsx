@@ -38,7 +38,7 @@ export default function VoteButton({ ville, metier }: { ville: string; metier: s
   }
 
   return (
-    <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+    <div className="bg-white rounded-2xl p-5 border border-slate-100/70">
       <p className="text-slate-700 font-medium text-sm mb-1">La météo d'hier était-elle exacte ?</p>
       <p className="text-slate-400 text-xs mb-4">Votre vote améliore les scores de réputation des sources.</p>
 
@@ -52,7 +52,7 @@ export default function VoteButton({ ville, metier }: { ville: string; metier: s
             key={vote}
             onClick={() => handleVote(vote)}
             disabled={loading}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border text-sm font-medium transition-all min-h-[48px] ${
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border text-sm font-medium transition-all min-h-[48px] ${
               selected === vote
                 ? "bg-sky-50 border-sky-200 text-sky-600"
                 : `bg-slate-50 border-slate-200 text-slate-500 ${color}`

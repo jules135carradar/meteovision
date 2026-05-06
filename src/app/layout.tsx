@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 export const metadata: Metadata = {
   title: "MétéoVision — Prévisions consolidées de 5+ sources",
@@ -15,16 +16,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Navigation */}
         <nav className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
           <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 font-semibold text-lg text-slate-800 hover:text-sky-500 transition-colors">
-              <span>🌤️</span>
+            <Link href="/" className="flex items-center gap-2.5 font-semibold text-lg text-slate-800 hover:text-sky-500 transition-colors">
+              <Logo size={26} />
               <span>MétéoVision</span>
             </Link>
             <Link
               href="/reputation"
               className="text-slate-500 hover:text-sky-500 text-sm font-medium transition-colors flex items-center gap-1.5 min-h-[44px] px-2"
             >
-              <span>📊</span>
-              <span className="hidden sm:inline">Réputation des sources</span>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
+                <rect x="1" y="9" width="3" height="6" rx="1" fill="currentColor" opacity=".5"/>
+                <rect x="6" y="5" width="3" height="10" rx="1" fill="currentColor" opacity=".7"/>
+                <rect x="11" y="1" width="3" height="14" rx="1" fill="currentColor"/>
+              </svg>
+              <span className="hidden sm:inline">Réputation</span>
             </Link>
           </div>
         </nav>

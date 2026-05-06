@@ -27,7 +27,7 @@ export default function ClaudeSynthesis({ weather, metier }: { weather: Aggregat
   }, [weather.location.name, metier]);
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-violet-100 shadow-sm">
+    <div className="bg-white rounded-2xl p-6 border border-violet-100/70">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-lg">🤖</div>
         <div>
