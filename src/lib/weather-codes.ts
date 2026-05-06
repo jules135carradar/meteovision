@@ -34,8 +34,18 @@ export function getWeatherDescription(code: number | null): string {
   return WMO_CODES[code]?.label ?? "Conditions variables";
 }
 
-export function getWeatherIcon(code: number | null): string {
+export function getWeatherIcon(code: number | null, localHour?: number): string {
   if (code === null) return "🌡️";
+
+  const isNight = localHour !== undefined && (localHour < 6 || localHour >= 21);
+
+  if (isNight) {
+    if (code === 0 || code === 1) return "🌙";
+    if (code === 2) return "🌛";
+    // Sun-with-rain icons become plain rain at night
+    if (code === 51 || code === 53 || code === 61 || code === 80) return "🌧️";
+  }
+
   return WMO_CODES[code]?.icon ?? "🌡️";
 }
 

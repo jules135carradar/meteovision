@@ -5,7 +5,7 @@ import { getWeatherIcon, getWindDirection } from "@/lib/weather-codes";
 import { formatWind, formatHumidity, formatPressure, formatPrecipitation } from "@/lib/utils";
 
 export default function WeatherCard({ weather }: { weather: AggregatedWeather }) {
-  const icon    = getWeatherIcon(weather.weatherCode);
+  const icon    = getWeatherIcon(weather.weatherCode, new Date().getHours());
   const windDir = getWindDirection(weather.windDirection);
 
   return (

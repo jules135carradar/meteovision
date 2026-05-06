@@ -59,7 +59,7 @@ function HourRow({ hour }: { hour: AggregatedHourlyForecast }) {
         </span>
       </td>
 
-      <td className="py-2.5 pr-3 text-base">{getWeatherIcon(hour.weatherCode)}</td>
+      <td className="py-2.5 pr-3 text-base">{getWeatherIcon(hour.weatherCode, localHour)}</td>
 
       <td className="py-2.5 pr-3 text-right text-slate-800 font-semibold tabular-nums">
         {Math.round(hour.temperature)}°

@@ -233,7 +233,7 @@ function HourRow({ hour }: { hour: AggregatedHourlyForecast }) {
   return (
     <tr className={`transition-colors hover:bg-white ${isNight ? "opacity-40" : ""}`}>
       <td className="py-2 pr-3 text-slate-500 font-medium tabular-nums">{hrLabel}</td>
-      <td className="py-2 pr-3 text-base">{getWeatherIcon(hour.weatherCode)}</td>
+      <td className="py-2 pr-3 text-base">{getWeatherIcon(hour.weatherCode, localHour)}</td>
       <td className="py-2 pr-3 text-right text-slate-700 font-semibold tabular-nums">
         {Math.round(hour.temperature)}°
       </td>
