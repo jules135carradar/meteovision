@@ -193,21 +193,21 @@ function DayRow({
 
       {/* Expanded hourly detail */}
       {isExpanded && hourly.length > 0 && (
-        <div className="border-t border-emerald-100 overflow-x-auto">
-          <table className="w-full text-xs min-w-[420px]">
+        <div style={{ overflowX: "auto", borderTop: "1.5px solid #6ee7b7" }}>
+          <table className="forecast-table" style={{ width: "100%", borderCollapse: "collapse", minWidth: 420 }}>
             <thead>
-              <tr className="bg-emerald-50/80 text-emerald-700 uppercase tracking-wide text-[10px] border-b border-emerald-100">
-                <th className="text-left py-2 px-5 font-semibold">Heure</th>
-                <th className="text-left py-2 pr-3 font-semibold w-8"></th>
-                <th className="text-right py-2 pr-3 font-semibold">Température</th>
-                <th className="text-right py-2 pr-3 font-semibold">Ressenti</th>
-                <th className="text-right py-2 pr-3 font-semibold">Humidité</th>
-                <th className="text-right py-2 pr-3 font-semibold">Pluie</th>
-                <th className="text-right py-2 pr-3 font-semibold">Probabilité</th>
-                <th className="text-right py-2 px-5 font-semibold">Vent</th>
+              <tr>
+                <th>Heure</th>
+                <th></th>
+                <th>Température</th>
+                <th>Ressenti</th>
+                <th>Humidité</th>
+                <th>Pluie</th>
+                <th>Probabilité</th>
+                <th>Vent</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody>
               {hourly.map((h) => (
                 <HourRow key={h.time} hour={h} />
               ))}
@@ -231,42 +231,28 @@ function HourRow({ hour }: { hour: AggregatedHourlyForecast }) {
   const isNight = localHour < 6 || localHour >= 22;
 
   return (
-    <tr className={`transition-colors hover:bg-slate-50 ${isNight ? "bg-slate-50/40 opacity-60" : ""}`}>
-      <td className="py-2.5 px-5 text-slate-700 font-bold tabular-nums">{hrLabel}</td>
-      <td className="py-2.5 pr-3 text-base">{getWeatherIcon(hour.weatherCode, localHour)}</td>
-      <td className="py-2.5 pr-3 text-right text-slate-900 font-bold tabular-nums">
-        {Math.round(hour.temperature)}°
+    <tr className={isNight ? "is-night" : ""}>
+      <td>{hrLabel}</td>
+      <td style={{ fontSize: 16 }}>{getWeatherIcon(hour.weatherCode, localHour)}</td>
+      <td className="temp">{Math.round(hour.temperature)}°</td>
+      <td>{Math.round(hour.feelsLike)}°</td>
+      <td>{hour.humidity > 0 ? `${Math.round(hour.humidity)} %` : <span className="dash">—</span>}</td>
+      <td>
+        {hour.precipitation > 0.05
+          ? <span className="rain">{hour.precipitation.toFixed(1)} mm</span>
+          : <span className="dash">—</span>}
       </td>
-      <td className="py-2.5 pr-3 text-right text-slate-600 tabular-nums">
-        {Math.round(hour.feelsLike)}°
+      <td>
+        {hour.precipitationProbability > 5
+          ? `${Math.round(hour.precipitationProbability)} %`
+          : <span className="dash">—</span>}
       </td>
-      <td className="py-2.5 pr-3 text-right tabular-nums">
-        {hour.humidity > 0 ? (
-          <span className="text-slate-600">{Math.round(hour.humidity)} %</span>
-        ) : (
-          <span className="text-slate-300">—</span>
-        )}
-      </td>
-      <td className="py-2.5 pr-3 text-right tabular-nums">
-        {hour.precipitation > 0.05 ? (
-          <span className="text-emerald-600 font-semibold">
-            {hour.precipitation.toFixed(1)} mm
-          </span>
-        ) : (
-          <span className="text-slate-300">—</span>
-        )}
-      </td>
-      <td className="py-2.5 pr-3 text-right tabular-nums">
-        {hour.precipitationProbability > 5 ? (
-          <span className="text-slate-600">{Math.round(hour.precipitationProbability)} %</span>
-        ) : (
-          <span className="text-slate-300">—</span>
-        )}
-      </td>
-      <td className="py-2.5 px-5 text-right text-slate-600 tabular-nums whitespace-nowrap">
+      <td style={{ whiteSpace: "nowrap" }}>
         {Math.round(hour.windSpeed)} km/h
         {hour.windDirection > 0 && (
-          <span className="text-slate-400 ml-1 font-medium">{windArrow(hour.windDirection)}</span>
+          <span style={{ color: "#94a3b8", marginLeft: 4, fontWeight: 500 }}>
+            {windArrow(hour.windDirection)}
+          </span>
         )}
       </td>
     </tr>
