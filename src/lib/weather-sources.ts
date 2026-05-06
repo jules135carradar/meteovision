@@ -64,7 +64,7 @@ export async function fetchOpenMeteoECMWF(
     const url =
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure,uv_index,visibility` +
-      `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
+      `&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,precipitation,weathercode,wind_speed_10m,wind_direction_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
       `&timezone=UTC&forecast_days=7`;
 
@@ -109,6 +109,8 @@ export async function fetchOpenMeteoECMWF(
           time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
           feelsLike: h.apparent_temperature?.[i] ?? null,
+          humidity: h.relative_humidity_2m?.[i] ?? null,
+          windDirection: h.wind_direction_10m?.[i] ?? null,
           precipitation: h.precipitation?.[i] ?? null,
           precipitationProbability: h.precipitation_probability?.[i] ?? null,
           windSpeed: h.wind_speed_10m?.[i] ?? null,
@@ -155,7 +157,7 @@ export async function fetchOpenMeteoGFS(
     const url =
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&models=gfs_seamless` +
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure` +
-      `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
+      `&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,precipitation,weathercode,wind_speed_10m,wind_direction_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
       `&timezone=UTC&forecast_days=7`;
 
@@ -198,6 +200,8 @@ export async function fetchOpenMeteoGFS(
           time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
           feelsLike: h.apparent_temperature?.[i] ?? null,
+          humidity: h.relative_humidity_2m?.[i] ?? null,
+          windDirection: h.wind_direction_10m?.[i] ?? null,
           precipitation: h.precipitation?.[i] ?? null,
           precipitationProbability: h.precipitation_probability?.[i] ?? null,
           windSpeed: h.wind_speed_10m?.[i] ?? null,
@@ -244,7 +248,7 @@ export async function fetchOpenMeteoICON(
     const url =
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&models=icon_seamless` +
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure` +
-      `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
+      `&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,precipitation,weathercode,wind_speed_10m,wind_direction_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
       `&timezone=UTC&forecast_days=7`;
 
@@ -287,6 +291,8 @@ export async function fetchOpenMeteoICON(
           time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
           feelsLike: h.apparent_temperature?.[i] ?? null,
+          humidity: h.relative_humidity_2m?.[i] ?? null,
+          windDirection: h.wind_direction_10m?.[i] ?? null,
           precipitation: h.precipitation?.[i] ?? null,
           precipitationProbability: h.precipitation_probability?.[i] ?? null,
           windSpeed: h.wind_speed_10m?.[i] ?? null,
@@ -320,7 +326,7 @@ async function fetchOpenMeteoModel(
     const url =
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&models=${model}` +
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure` +
-      `&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,wind_speed_10m` +
+      `&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,precipitation,weathercode,wind_speed_10m,wind_direction_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
       `&timezone=UTC&forecast_days=7`;
 
@@ -363,6 +369,8 @@ async function fetchOpenMeteoModel(
           time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
           feelsLike: h.apparent_temperature?.[i] ?? null,
+          humidity: h.relative_humidity_2m?.[i] ?? null,
+          windDirection: h.wind_direction_10m?.[i] ?? null,
           precipitation: h.precipitation?.[i] ?? null,
           precipitationProbability: h.precipitation_probability?.[i] ?? null,
           windSpeed: h.wind_speed_10m?.[i] ?? null,
@@ -474,9 +482,11 @@ export async function fetchYrNo(
           time: new Date(entry.time).toISOString(),
           temperature: entryDetails.air_temperature ?? null,
           feelsLike: null,
+          humidity: entryDetails.relative_humidity ?? null,
           precipitation: precip,
           precipitationProbability: null,
           windSpeed: entryDetails.wind_speed !== undefined ? entryDetails.wind_speed * 3.6 : null,
+          windDirection: entryDetails.wind_from_direction ?? null,
           weatherCode: null,
         });
       }

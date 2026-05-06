@@ -201,6 +201,7 @@ function DayRow({
                 <th className="text-left py-1 pr-3 font-medium w-8"></th>
                 <th className="text-right py-1 pr-3 font-medium">Temp.</th>
                 <th className="text-right py-1 pr-3 font-medium">Ressenti</th>
+                <th className="text-right py-1 pr-3 font-medium">Humidité</th>
                 <th className="text-right py-1 pr-3 font-medium">Pluie</th>
                 <th className="text-right py-1 pr-3 font-medium">Prob.</th>
                 <th className="text-right py-1 font-medium">Vent</th>
@@ -218,13 +219,18 @@ function DayRow({
   );
 }
 
+function windArrow(deg: number): string {
+  const dirs = ["N","NE","E","SE","S","SO","O","NO"];
+  return dirs[Math.round(deg / 45) % 8];
+}
+
 function HourRow({ hour }: { hour: AggregatedHourlyForecast }) {
   const hrNum = parseInt(hour.time.slice(11, 13));
   const hrLabel = hour.time.slice(11, 16);
   const isNight = hrNum < 6 || hrNum >= 22;
 
   return (
-    <tr className={`transition-colors hover:bg-white ${isNight ? "opacity-50" : ""}`}>
+    <tr className={`transition-colors hover:bg-white ${isNight ? "opacity-40" : ""}`}>
       <td className="py-2 pr-3 text-slate-500 font-medium tabular-nums">{hrLabel}</td>
       <td className="py-2 pr-3 text-base">{getWeatherIcon(hour.weatherCode)}</td>
       <td className="py-2 pr-3 text-right text-slate-700 font-semibold tabular-nums">
@@ -232,6 +238,13 @@ function HourRow({ hour }: { hour: AggregatedHourlyForecast }) {
       </td>
       <td className="py-2 pr-3 text-right text-slate-400 tabular-nums">
         {Math.round(hour.feelsLike)}°
+      </td>
+      <td className="py-2 pr-3 text-right tabular-nums">
+        {hour.humidity > 0 ? (
+          <span className="text-slate-500">{Math.round(hour.humidity)}%</span>
+        ) : (
+          <span className="text-slate-300">—</span>
+        )}
       </td>
       <td className="py-2 pr-3 text-right tabular-nums">
         {hour.precipitation > 0.05 ? (
@@ -249,8 +262,11 @@ function HourRow({ hour }: { hour: AggregatedHourlyForecast }) {
           <span className="text-slate-300">—</span>
         )}
       </td>
-      <td className="py-2 text-right text-slate-400 tabular-nums">
+      <td className="py-2 text-right text-slate-400 tabular-nums whitespace-nowrap">
         {Math.round(hour.windSpeed)} km/h
+        {hour.windDirection > 0 && (
+          <span className="text-slate-300 ml-1 text-xs">{windArrow(hour.windDirection)}</span>
+        )}
       </td>
     </tr>
   );

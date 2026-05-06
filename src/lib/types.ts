@@ -10,9 +10,11 @@ export interface HourlyForecast {
   time: string;
   temperature: number | null;
   feelsLike: number | null;
+  humidity: number | null;
   precipitation: number | null;
   precipitationProbability: number | null;
   windSpeed: number | null;
+  windDirection: number | null;
   weatherCode: number | null;
 }
 
@@ -20,9 +22,11 @@ export interface AggregatedHourlyForecast {
   time: string;
   temperature: number;
   feelsLike: number;
+  humidity: number;
   precipitation: number;
   precipitationProbability: number;
   windSpeed: number;
+  windDirection: number;
   weatherCode: number;
   description: string;
 }

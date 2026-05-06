@@ -67,9 +67,11 @@ function aggregateHourly(sources: WeatherSourceResult[]): AggregatedHourlyForeca
   type HourAccumulator = {
     temps: { value: number; weight: number }[];
     feelsLike: { value: number; weight: number }[];
+    humidities: { value: number; weight: number }[];
     precips: { value: number; weight: number }[];
     precipProbs: { value: number; weight: number }[];
     windSpeeds: { value: number; weight: number }[];
+    windDirs: { value: number; weight: number }[];
     codes: number[];
   };
 
@@ -81,14 +83,16 @@ function aggregateHourly(sources: WeatherSourceResult[]): AggregatedHourlyForeca
       // Normalize to UTC ISO hour key so all sources group correctly regardless of timezone format
       const key = new Date(h.time).toISOString().slice(0, 13) + ":00:00.000Z";
       if (!timeMap[key]) {
-        timeMap[key] = { temps: [], feelsLike: [], precips: [], precipProbs: [], windSpeeds: [], codes: [] };
+        timeMap[key] = { temps: [], feelsLike: [], humidities: [], precips: [], precipProbs: [], windSpeeds: [], windDirs: [], codes: [] };
       }
       const acc = timeMap[key];
       if (h.temperature !== null) acc.temps.push({ value: h.temperature, weight });
       if (h.feelsLike !== null) acc.feelsLike.push({ value: h.feelsLike, weight });
+      if (h.humidity !== null) acc.humidities.push({ value: h.humidity, weight });
       if (h.precipitation !== null) acc.precips.push({ value: h.precipitation, weight });
       if (h.precipitationProbability !== null) acc.precipProbs.push({ value: h.precipitationProbability, weight });
       if (h.windSpeed !== null) acc.windSpeeds.push({ value: h.windSpeed, weight });
+      if (h.windDirection !== null) acc.windDirs.push({ value: h.windDirection, weight });
       if (h.weatherCode !== null) acc.codes.push(h.weatherCode);
     }
   }
@@ -109,9 +113,11 @@ function aggregateHourly(sources: WeatherSourceResult[]): AggregatedHourlyForeca
         time,
         temperature: weightedMean(acc.temps) ?? 0,
         feelsLike: weightedMean(acc.feelsLike) ?? 0,
+        humidity: weightedMean(acc.humidities) ?? 0,
         precipitation: weightedMean(acc.precips) ?? 0,
         precipitationProbability: weightedMean(acc.precipProbs) ?? 0,
         windSpeed: weightedMean(acc.windSpeeds) ?? 0,
+        windDirection: weightedMean(acc.windDirs) ?? 0,
         weatherCode,
         description: getWeatherDescription(weatherCode),
       };
