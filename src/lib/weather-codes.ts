@@ -40,9 +40,10 @@ export function getWeatherIcon(code: number | null, localHour?: number): string 
   const isNight = localHour !== undefined && (localHour < 6 || localHour >= 21);
 
   if (isNight) {
-    if (code === 0 || code === 1) return "🌙";
-    if (code === 2) return "🌛";
-    // Sun-with-rain icons become plain rain at night
+    if (code === 0 || code === 1) return "🌙";       // ciel dégagé → lune
+    if (code === 2) return "🌛";                     // peu nuageux → lune + nuage
+    if (code === 3) return "🌙";                     // couvert → lune (indique la nuit)
+    // Icônes avec soleil → pluie simple la nuit
     if (code === 51 || code === 53 || code === 61 || code === 80) return "🌧️";
   }
 
