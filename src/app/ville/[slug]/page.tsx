@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AggregatedWeather } from "@/lib/types";
 import WeatherCard from "@/components/WeatherCard";
-import DivergenceAlert from "@/components/DivergenceAlert";
 import ClaudeSynthesis from "@/components/ClaudeSynthesis";
 import DailyForecast from "@/components/DailyForecast";
 import ProModeIndicators from "@/components/ProModeIndicators";
@@ -99,11 +98,6 @@ export default function VillePage() {
 
           {/* Prévisions heure par heure */}
           <HourlyForecast hourly={weather.hourly} />
-
-          {/* Alertes divergences */}
-          {weather.divergences.length > 0 && (
-            <DivergenceAlert divergences={weather.divergences} />
-          )}
 
           {/* Indicateurs pro */}
           <ProModeIndicators weather={weather} metier={metier} />
