@@ -194,17 +194,23 @@ function DayRow({
       {/* Expanded hourly detail */}
       {isExpanded && hourly.length > 0 && (
         <div style={{ overflowX: "auto", borderTop: "1.5px solid #6ee7b7" }}>
-          <table className="forecast-table" style={{ width: "100%", borderCollapse: "collapse", minWidth: 420 }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 420, fontSize: 12 }}>
             <thead>
               <tr>
-                <th>Heure</th>
-                <th></th>
-                <th>Température</th>
-                <th>Ressenti</th>
-                <th>Humidité</th>
-                <th>Pluie</th>
-                <th>Probabilité</th>
-                <th>Vent</th>
+                {["Heure", "", "Température", "Ressenti", "Humidité", "Pluie", "Probabilité", "Vent"].map((h, i) => (
+                  <th key={i} style={{
+                    padding: "9px 12px",
+                    fontSize: 10,
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    color: "#065f46",
+                    background: "#d1fae5",
+                    textAlign: i < 2 ? "left" : "right",
+                    borderBottom: "1.5px solid #6ee7b7",
+                    whiteSpace: "nowrap",
+                  }}>{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
@@ -230,27 +236,35 @@ function HourRow({ hour }: { hour: AggregatedHourlyForecast }) {
   const localHour = time.getHours();
   const isNight = localHour < 6 || localHour >= 22;
 
+  const td = {
+    padding: "10px 12px",
+    textAlign: "right" as const,
+    color: "#1e293b",
+    borderTop: "1px solid #f1f5f9",
+    background: isNight ? "#f8fafc" : "#fff",
+    opacity: isNight ? 0.6 : 1,
+  };
   return (
-    <tr className={isNight ? "is-night" : ""}>
-      <td>{hrLabel}</td>
-      <td style={{ fontSize: 16 }}>{getWeatherIcon(hour.weatherCode, localHour)}</td>
-      <td className="temp">{Math.round(hour.temperature)}°</td>
-      <td>{Math.round(hour.feelsLike)}°</td>
-      <td>{hour.humidity > 0 ? `${Math.round(hour.humidity)} %` : <span className="dash">—</span>}</td>
-      <td>
+    <tr>
+      <td style={{ ...td, textAlign: "left", fontWeight: 700, color: "#334155" }}>{hrLabel}</td>
+      <td style={{ ...td, textAlign: "left", fontSize: 16 }}>{getWeatherIcon(hour.weatherCode, localHour)}</td>
+      <td style={{ ...td, fontWeight: 800, color: "#0f172a" }}>{Math.round(hour.temperature)}°</td>
+      <td style={td}>{Math.round(hour.feelsLike)}°</td>
+      <td style={td}>{hour.humidity > 0 ? `${Math.round(hour.humidity)} %` : <span style={{ color: "#cbd5e1" }}>—</span>}</td>
+      <td style={td}>
         {hour.precipitation > 0.05
-          ? <span className="rain">{hour.precipitation.toFixed(1)} mm</span>
-          : <span className="dash">—</span>}
+          ? <span style={{ color: "#059669", fontWeight: 700 }}>{hour.precipitation.toFixed(1)} mm</span>
+          : <span style={{ color: "#cbd5e1" }}>—</span>}
       </td>
-      <td>
+      <td style={td}>
         {hour.precipitationProbability > 5
           ? `${Math.round(hour.precipitationProbability)} %`
-          : <span className="dash">—</span>}
+          : <span style={{ color: "#cbd5e1" }}>—</span>}
       </td>
-      <td style={{ whiteSpace: "nowrap" }}>
+      <td style={{ ...td, whiteSpace: "nowrap" }}>
         {Math.round(hour.windSpeed)} km/h
         {hour.windDirection > 0 && (
-          <span style={{ color: "#94a3b8", marginLeft: 4, fontWeight: 500 }}>
+          <span style={{ color: "#94a3b8", marginLeft: 4, fontWeight: 600 }}>
             {windArrow(hour.windDirection)}
           </span>
         )}
