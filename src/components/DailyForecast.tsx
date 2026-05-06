@@ -20,9 +20,9 @@ export default function DailyForecast({ daily }: { daily: AggregatedDailyForecas
 function DayCard({ day, isToday }: { day: AggregatedDailyForecast; isToday: boolean }) {
   return (
     <div className={`flex flex-col items-center gap-1.5 rounded-2xl p-3 flex-shrink-0 w-[80px] md:w-auto border transition-colors ${
-      isToday ? "bg-sky-50 border-sky-100" : "bg-slate-50/60 border-transparent hover:bg-slate-100"
+      isToday ? "bg-emerald-50 border-emerald-100" : "bg-slate-50/60 border-transparent hover:bg-slate-100"
     }`}>
-      <span className={`text-xs font-medium capitalize ${isToday ? "text-sky-500" : "text-slate-400"}`}>
+      <span className={`text-xs font-medium capitalize ${isToday ? "text-emerald-500" : "text-slate-400"}`}>
         {isToday ? "Auj." : formatDate(day.date)}
       </span>
       <span className="text-2xl">{getWeatherIcon(day.weatherCode)}</span>
@@ -31,7 +31,7 @@ function DayCard({ day, isToday }: { day: AggregatedDailyForecast; isToday: bool
         <p className="text-slate-400 text-xs">{Math.round(day.tempMin)}°</p>
       </div>
       {day.precipitation > 0.5 && (
-        <p className="text-sky-400 text-xs">{day.precipitation.toFixed(1)}mm</p>
+        <p className="text-emerald-400 text-xs">{day.precipitation.toFixed(1)}mm</p>
       )}
     </div>
   );

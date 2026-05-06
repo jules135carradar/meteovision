@@ -119,9 +119,9 @@ function ReputationRow({
   const name = SOURCE_NAMES[record.source] ?? record.source;
   const url = SOURCE_URLS[record.source] ?? "#";
   const barColor =
-    score >= 70 ? "bg-green-400" : score >= 50 ? "bg-sky-400" : "bg-red-400";
+    score >= 70 ? "bg-green-400" : score >= 50 ? "bg-emerald-400" : "bg-red-400";
   const scoreColor =
-    score >= 70 ? "text-green-500" : score >= 50 ? "text-sky-500" : "text-red-500";
+    score >= 70 ? "text-green-500" : score >= 50 ? "text-emerald-500" : "text-red-500";
 
   const rankEmoji = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `${rank}.`;
 
@@ -136,7 +136,7 @@ function ReputationRow({
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-700 font-medium hover:text-sky-500 transition-colors truncate"
+              className="text-slate-700 font-medium hover:text-emerald-500 transition-colors truncate"
             >
               {name}
             </a>

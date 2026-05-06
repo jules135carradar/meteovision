@@ -54,7 +54,7 @@ export default function VoteButton({ ville, metier }: { ville: string; metier: s
             disabled={loading}
             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border text-sm font-medium transition-all min-h-[48px] ${
               selected === vote
-                ? "bg-sky-50 border-sky-200 text-sky-600"
+                ? "bg-emerald-50 border-emerald-200 text-emerald-600"
                 : `bg-slate-50 border-slate-200 text-slate-500 ${color}`
             } disabled:opacity-50`}
           >

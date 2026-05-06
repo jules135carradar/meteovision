@@ -27,9 +27,9 @@ export default function ClaudeSynthesis({ weather, metier }: { weather: Aggregat
   }, [weather.location.name, metier]);
 
   return (
-    <div className="bg-white rounded-2xl p-6 border border-violet-100/70">
+    <div className="bg-white rounded-2xl p-6 border border-teal-100/70">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-lg">🤖</div>
+        <div className="w-8 h-8 rounded-full bg-teal-50 flex items-center justify-center text-lg">🤖</div>
         <div>
           <p className="text-slate-700 font-medium text-sm">Analyse IA</p>
           <p className="text-slate-400 text-xs">Claude · {weather.validSources} sources analysées</p>
@@ -38,7 +38,7 @@ export default function ClaudeSynthesis({ weather, metier }: { weather: Aggregat
 
       {loading && (
         <div className="flex items-center gap-2 text-slate-400">
-          <div className="w-4 h-4 border-2 border-violet-300 border-t-transparent rounded-full animate-spin" />
+          <div className="w-4 h-4 border-2 border-teal-300 border-t-transparent rounded-full animate-spin" />
           <span className="text-sm font-light">Analyse en cours...</span>
         </div>
       )}
@@ -49,7 +49,7 @@ export default function ClaudeSynthesis({ weather, metier }: { weather: Aggregat
         <p className="text-slate-600 leading-relaxed font-light">{synthesis}</p>
       )}
 
-      <p className="text-violet-300 text-xs mt-4">Propulsé par Claude · Anthropic</p>
+      <p className="text-teal-300 text-xs mt-4">Propulsé par Claude · Anthropic</p>
     </div>
   );
 }

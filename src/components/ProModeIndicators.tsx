@@ -59,7 +59,7 @@ function RiskBadge({ level, labels }: { level: string; labels: Record<string, st
 function ProCard({ icon, title, children }: { icon: string; title: string; children: React.ReactNode }) {
   return (
     <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-      <p className="text-sky-500 text-xs uppercase font-medium mb-2 flex items-center gap-1">
+      <p className="text-emerald-500 text-xs uppercase font-medium mb-2 flex items-center gap-1">
         <span>{icon}</span> {title}
       </p>
       {children}

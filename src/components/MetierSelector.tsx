@@ -24,7 +24,7 @@ export default function MetierSelector({ value, onChange }: Props) {
             onClick={() => onChange(m.id)}
             className={`flex items-center gap-2 px-3 py-3 rounded-xl text-sm font-medium transition-all min-h-[48px] justify-center sm:justify-start ${
               value === m.id
-                ? "bg-sky-50 text-sky-600 border border-sky-200"
+                ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
                 : "bg-slate-50 text-slate-500 border border-transparent hover:bg-slate-100 hover:text-slate-700"
             }`}
           >

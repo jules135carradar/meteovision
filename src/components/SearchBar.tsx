@@ -57,7 +57,7 @@ export default function SearchBar({ autoFocus = false }: { autoFocus?: boolean }
           onFocus={() => results.length > 0 && setIsOpen(true)}
           onBlur={() => setTimeout(() => setIsOpen(false), 150)}
           placeholder="Rechercher une ville française..."
-          className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white border border-slate-200 text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 shadow-sm transition-all text-base"
+          className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white border border-slate-200 text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-emerald-300 shadow-sm transition-all text-base"
         />
         {loading && (
           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 animate-spin">⟳</span>
@@ -73,7 +73,7 @@ export default function SearchBar({ autoFocus = false }: { autoFocus?: boolean }
                 onMouseDown={() => handleSelect(r)}
                 className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors flex items-center gap-3 min-h-[48px]"
               >
-                <span className="text-sky-400">📍</span>
+                <span className="text-emerald-400">📍</span>
                 <div>
                   <span className="text-slate-700 font-medium text-sm">{r.name}</span>
                   {r.admin1 && <span className="text-slate-400 text-xs ml-2">{r.admin1}</span>}

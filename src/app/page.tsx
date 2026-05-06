@@ -22,7 +22,7 @@ export default function Home() {
         <p className="text-slate-400 font-light text-sm mb-1">
           5 sources indépendantes · Analyse IA · Mode professionnel
         </p>
-        <div className="w-12 h-px bg-sky-300 mx-auto my-5" />
+        <div className="w-12 h-px bg-emerald-300 mx-auto my-5" />
 
         <div className="w-full max-w-lg">
           <SearchBar autoFocus />
@@ -33,7 +33,7 @@ export default function Home() {
             <a
               key={v.name}
               href={`/ville/${v.name.toLowerCase()}?lat=${v.lat}&lon=${v.lon}&city=${encodeURIComponent(v.name)}`}
-              className="px-4 py-2.5 rounded-full bg-white border border-slate-200 text-slate-500 hover:border-sky-300 hover:text-sky-600 text-sm transition-all shadow-sm min-h-[44px] flex items-center"
+              className="px-4 py-2.5 rounded-full bg-white border border-slate-200 text-slate-500 hover:border-emerald-300 hover:text-emerald-600 text-sm transition-all shadow-sm min-h-[44px] flex items-center"
             >
               {v.name}
             </a>

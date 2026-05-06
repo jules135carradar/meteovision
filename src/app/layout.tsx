@@ -16,13 +16,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Navigation */}
         <nav className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
           <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2.5 font-semibold text-lg text-slate-800 hover:text-sky-500 transition-colors">
+            <Link href="/" className="flex items-center gap-2.5 font-semibold text-lg text-slate-800 hover:text-emerald-500 transition-colors">
               <Logo size={26} />
               <span>MétéoVision</span>
             </Link>
             <Link
               href="/reputation"
-              className="text-slate-500 hover:text-sky-500 text-sm font-medium transition-colors flex items-center gap-1.5 min-h-[44px] px-2"
+              className="text-slate-500 hover:text-emerald-500 text-sm font-medium transition-colors flex items-center gap-1.5 min-h-[44px] px-2"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
                 <rect x="1" y="9" width="3" height="6" rx="1" fill="currentColor" opacity=".5"/>

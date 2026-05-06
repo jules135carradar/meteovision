@@ -46,7 +46,7 @@ export default function SourceTable({ sources }: { sources: WeatherSourceResult[
       {active.length > 4 && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="mt-4 text-sky-500 hover:text-sky-600 text-sm transition-colors min-h-[44px] flex items-center"
+          className="mt-4 text-emerald-500 hover:text-emerald-600 text-sm transition-colors min-h-[44px] flex items-center"
         >
           {expanded ? "▲ Moins" : `▼ Toutes les sources (${active.length})`}
         </button>
@@ -56,8 +56,8 @@ export default function SourceTable({ sources }: { sources: WeatherSourceResult[
 }
 
 function ScoreBar({ score }: { score: number }) {
-  const color = score >= 70 ? "bg-green-400" : score >= 50 ? "bg-sky-400" : "bg-red-400";
-  const text  = score >= 70 ? "text-green-500" : score >= 50 ? "text-sky-500" : "text-red-500";
+  const color = score >= 70 ? "bg-green-400" : score >= 50 ? "bg-emerald-400" : "bg-red-400";
+  const text  = score >= 70 ? "text-green-500" : score >= 50 ? "text-emerald-500" : "text-red-500";
   return (
     <div className="flex flex-col items-center gap-1">
       <span className={`font-medium text-xs ${text}`}>{score}%</span>
@@ -72,7 +72,7 @@ function SourceCard({ source: s }: { source: WeatherSourceResult }) {
   return (
     <div className={`bg-slate-50 rounded-2xl p-4 border border-slate-100 ${s.error ? "opacity-50" : ""}`}>
       <div className="flex items-center justify-between mb-3">
-        <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-slate-600 font-medium text-sm hover:text-sky-500 transition-colors">{s.displayName}</a>
+        <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-slate-600 font-medium text-sm hover:text-emerald-500 transition-colors">{s.displayName}</a>
         <ScoreBar score={s.reputation} />
       </div>
       <div className="grid grid-cols-4 gap-2 text-center">
@@ -96,7 +96,7 @@ function SourceRow({ source: s }: { source: WeatherSourceResult }) {
   return (
     <tr className={`border-b border-slate-50 hover:bg-slate-50 transition-colors ${s.error ? "opacity-50" : ""}`}>
       <td className="py-3 pr-4">
-        <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-sky-500 font-medium transition-colors text-sm">{s.displayName}</a>
+        <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-emerald-500 font-medium transition-colors text-sm">{s.displayName}</a>
       </td>
       <td className="py-3 px-2 text-center"><ScoreBar score={s.reputation} /></td>
       <td className="py-3 px-2 text-center text-slate-600 text-sm">{s.temperature !== null ? `${s.temperature.toFixed(1)}°C` : "—"}</td>

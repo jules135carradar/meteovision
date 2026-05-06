@@ -25,16 +25,16 @@ function HourCard({ hour }: { hour: AggregatedHourlyForecast }) {
   return (
     <div className={`flex flex-col items-center gap-1.5 rounded-xl p-3 flex-shrink-0 w-[72px] transition-colors border ${
       isNow
-        ? "bg-sky-50 border-sky-200"
+        ? "bg-emerald-50 border-emerald-200"
         : "bg-slate-50 border-transparent hover:bg-slate-100"
     }`}>
-      <span className={`text-xs font-medium ${isNow ? "text-sky-500" : "text-slate-400"}`}>
+      <span className={`text-xs font-medium ${isNow ? "text-emerald-500" : "text-slate-400"}`}>
         {isNow ? "Maint." : label}
       </span>
       <span className="text-xl">{icon}</span>
       <span className="text-slate-700 font-medium text-sm">{Math.round(hour.temperature)}°</span>
       {hour.precipitationProbability > 10 && (
-        <span className="text-sky-400 text-xs">{Math.round(hour.precipitationProbability)}%</span>
+        <span className="text-emerald-400 text-xs">{Math.round(hour.precipitationProbability)}%</span>
       )}
       {hour.windSpeed > 20 && (
         <span className="text-slate-400 text-xs">{Math.round(hour.windSpeed)}km/h</span>
