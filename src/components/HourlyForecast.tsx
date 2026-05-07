@@ -122,7 +122,7 @@ function HourRow({ hour }: { hour: AggregatedHourlyForecast }) {
           : <span style={{ color: "#cbd5e1" }}>—</span>}
       </td>
       <td style={td()}>
-        {hour.precipitation > 0.05
+        {hour.precipitation >= 1
           ? <span style={{ color: "#2563eb", fontWeight: 700 }}>{hour.precipitation.toFixed(1)} mm</span>
           : <span style={{ color: "#cbd5e1" }}>—</span>}
       </td>

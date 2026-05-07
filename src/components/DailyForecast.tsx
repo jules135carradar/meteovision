@@ -161,19 +161,19 @@ function DayRow({
             <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 12, color: "#94a3b8" }}>
               {morningTemp !== null && (
                 <span>🌅 <span style={{ color: tempColor(morningTemp), fontWeight: 600 }}>{Math.round(morningTemp)}°</span>
-                  {morningPrecip > 0.1 && <span style={{ color: "#60a5fa", marginLeft: 3 }}>{morningPrecip.toFixed(1)} mm</span>}
+                  {morningPrecip >= 1 && <span style={{ color: "#60a5fa", marginLeft: 3 }}>{morningPrecip.toFixed(1)} mm</span>}
                 </span>
               )}
               {afternoonTemp !== null && (
                 <span>☀️ <span style={{ color: tempColor(afternoonTemp), fontWeight: 600 }}>{Math.round(afternoonTemp)}°</span>
-                  {afternoonPrecip > 0.1 && <span style={{ color: "#60a5fa", marginLeft: 3 }}>{afternoonPrecip.toFixed(1)} mm</span>}
+                  {afternoonPrecip >= 1 && <span style={{ color: "#60a5fa", marginLeft: 3 }}>{afternoonPrecip.toFixed(1)} mm</span>}
                 </span>
               )}
             </div>
           )}
 
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
-            {day.precipitation > 0.1 && (
+            {day.precipitation >= 1 && (
               <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12 }}>
                 <span style={{ color: "#2563eb", fontWeight: 700 }}>{day.precipitation.toFixed(1)} mm</span>
                 {maxPrecipProb !== null && maxPrecipProb > 10 && (
@@ -253,7 +253,7 @@ function HourRow({ hour }: { hour: AggregatedHourlyForecast }) {
         {hour.humidity > 0 ? `${Math.round(hour.humidity)} %` : <span style={{ color: "#cbd5e1" }}>—</span>}
       </td>
       <td style={td()}>
-        {hour.precipitation > 0.05
+        {hour.precipitation >= 1
           ? <span style={{ color: "#2563eb", fontWeight: 700 }}>{hour.precipitation.toFixed(1)} mm</span>
           : <span style={{ color: "#cbd5e1" }}>—</span>}
       </td>

@@ -31,7 +31,7 @@ function PrecipBar({ day, maxPrecip, isToday = false, isHistorical = false }: {
   isHistorical?: boolean;
 }) {
   const pct     = maxPrecip > 0 ? (day.precipitation / maxPrecip) * 100 : 0;
-  const hasRain = day.precipitation >= 0.05;
+  const hasRain = day.precipitation >= 1;
   const color   = precipColor(day.precipitation);
   const label   = formatDayLabel(day.date, isToday);
 
@@ -95,8 +95,8 @@ export default function RainCumulTable({ daily, historicalPrecip = [] }: Props) 
   const forecastTotal = daily.reduce((s, d) => s + d.precipitation, 0);
   const grandTotal   = histTotal + forecastTotal;
 
-  const rainyForecast = daily.filter((d) => d.precipitation > 0.5).length;
-  const rainyHist     = historicalPrecip.filter((d) => d.precipitation > 0.5).length;
+  const rainyForecast = daily.filter((d) => d.precipitation >= 1).length;
+  const rainyHist     = historicalPrecip.filter((d) => d.precipitation >= 1).length;
 
   return (
     <div style={{
