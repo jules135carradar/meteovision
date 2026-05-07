@@ -80,7 +80,11 @@ export default function DailyForecast({ daily, hourly }: Props) {
       </div>
       <div>
         {daily.map((day, i) => {
-          const dayHourly = hourly.filter((h) => h.time.slice(0, 10) === day.date);
+          const dayHourly = hourly.filter((h) => {
+            const d = new Date(h.time);
+            const local = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+            return local === day.date;
+          });
           return (
             <DayRow
               key={day.date}
@@ -106,15 +110,16 @@ function DayRow({
   isExpanded: boolean;
   onToggle: () => void;
 }) {
-  const morningH   = hourly.filter((h) => { const hr = parseInt(h.time.slice(11, 13)); return hr >= 6 && hr < 12; });
-  const afternoonH = hourly.filter((h) => { const hr = parseInt(h.time.slice(11, 13)); return hr >= 12 && hr < 18; });
+  const localHr = (h: AggregatedHourlyForecast) => new Date(h.time).getHours();
+  const morningH   = hourly.filter((h) => { const hr = localHr(h); return hr >= 6 && hr < 12; });
+  const afternoonH = hourly.filter((h) => { const hr = localHr(h); return hr >= 12 && hr < 18; });
 
   const morningTemp    = avg(morningH.map((h) => h.temperature));
   const afternoonTemp  = avg(afternoonH.map((h) => h.temperature));
   const morningPrecip  = morningH.reduce((s, h) => s + h.precipitation, 0);
   const afternoonPrecip = afternoonH.reduce((s, h) => s + h.precipitation, 0);
   const maxPrecipProb  = avg(
-    hourly.filter((h) => { const hr = parseInt(h.time.slice(11, 13)); return hr >= 6 && hr <= 20; })
+    hourly.filter((h) => { const hr = localHr(h); return hr >= 6 && hr <= 20; })
           .map((h) => h.precipitationProbability)
   );
 
