@@ -68,7 +68,7 @@ function ProCard({ icon, title, children }: { icon: string; title: string; child
   const g = CARD_GRADIENTS[title.charCodeAt(0) % CARD_GRADIENTS.length];
   return (
     <div style={{ background: g.bg, borderRadius: 16, padding: 16, border: `1.5px solid ${g.border}` }}>
-      <p style={{ color: g.title, fontSize: 11, textTransform: "uppercase", fontWeight: 800, letterSpacing: "0.04em", marginBottom: 8, lineHeight: 1.4 }}>
+      <p style={{ color: g.title, fontSize: 11, textTransform: "uppercase", fontWeight: 800, letterSpacing: "0.04em", marginBottom: 8, lineHeight: 1.4, overflowWrap: "break-word", wordBreak: "break-word" }}>
         <span style={{ marginRight: 4 }}>{icon}</span>{title}
       </p>
       {children}
@@ -104,7 +104,7 @@ function ViticulteurPanel({ weather }: { weather: AggregatedWeather }) {
         )}
       </ProCard>
 
-      <ProCard icon="💧" title="Évapotranspiration">
+      <ProCard icon="💧" title="ETP / Évapotranspiration">
         <p className="text-slate-800 text-2xl font-bold">{v.etp} mm/j</p>
       </ProCard>
 

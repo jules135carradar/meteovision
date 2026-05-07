@@ -122,14 +122,14 @@ function DayRow({
   const rowBg  = isToday ? "#fefce8" : "#fff";
 
   return (
-    <div style={{ borderTop: "1px solid #f1f5f9" }}>
+    <div style={{ borderTop: "1px solid #e8edf2" }}>
       <button
         type="button"
         onClick={onToggle}
         style={{
           width: "100%",
           textAlign: "left",
-          padding: "14px 16px",
+          padding: "18px 16px",
           background: rowBg,
           border: "none",
           borderLeft: `5px solid ${accent}`,
@@ -176,7 +176,7 @@ function DayRow({
 
         {/* Ligne 2 : Matin / Après-midi avec labels texte */}
         {(morningTemp !== null || afternoonTemp !== null) && (
-          <div style={{ display: "flex", gap: 14, marginTop: 5, fontSize: 12, color: "#64748b", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 16, marginTop: 10, fontSize: 12, color: "#64748b", flexWrap: "wrap" }}>
             {morningTemp !== null && (
               <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
                 <span>🌅</span>
