@@ -138,51 +138,34 @@ function DayRow({
         onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = isToday ? "#fef9c3" : "#f8fafc"; }}
         onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = rowBg; }}
       >
-        {/* Main row */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", flexWrap: "wrap" }}>
-          <span style={{ fontSize: 14, fontWeight: 600, minWidth: 100, color: isToday ? "#92400e" : "#334155" }}>
+        {/* Ligne 1 : jour · icône · températures · pluie · vent · chevron */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%" }}>
+          <span style={{ fontSize: 14, fontWeight: 600, minWidth: 96, color: isToday ? "#92400e" : "#334155", flexShrink: 0 }}>
             {isToday ? "Aujourd'hui" : formatDayLabel(day.date)}
           </span>
 
-          <span style={{ fontSize: 20, width: 28, textAlign: "center", flexShrink: 0 }}>
-            {getWeatherIcon(day.weatherCode)}
-          </span>
+          <span style={{ fontSize: 20, flexShrink: 0 }}>{getWeatherIcon(day.weatherCode)}</span>
 
-          <div style={{ display: "flex", alignItems: "baseline", gap: 4, flexShrink: 0 }}>
-            <span style={{ fontWeight: 700, fontSize: 15, color: tempColor(day.tempMax) }}>
-              {Math.round(day.tempMax)}°
+          <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
+            <span style={{ fontWeight: 800, fontSize: 15, color: tempColor(day.tempMax) }}>
+              ↑{Math.round(day.tempMax)}°
             </span>
-            <span style={{ fontSize: 12, color: tempColor(day.tempMin), opacity: 0.7 }}>
-              / {Math.round(day.tempMin)}°
+            <span style={{ fontSize: 13, color: tempColor(day.tempMin), fontWeight: 600 }}>
+              ↓{Math.round(day.tempMin)}°
             </span>
           </div>
 
-          {(morningTemp !== null || afternoonTemp !== null) && (
-            <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 12, color: "#94a3b8" }}>
-              {morningTemp !== null && (
-                <span>🌅 <span style={{ color: tempColor(morningTemp), fontWeight: 600 }}>{Math.round(morningTemp)}°</span>
-                  {morningPrecip >= 1 && <span style={{ color: "#60a5fa", marginLeft: 3 }}>{morningPrecip.toFixed(1)} mm</span>}
-                </span>
-              )}
-              {afternoonTemp !== null && (
-                <span>☀️ <span style={{ color: tempColor(afternoonTemp), fontWeight: 600 }}>{Math.round(afternoonTemp)}°</span>
-                  {afternoonPrecip >= 1 && <span style={{ color: "#60a5fa", marginLeft: 3 }}>{afternoonPrecip.toFixed(1)} mm</span>}
-                </span>
-              )}
-            </div>
-          )}
-
-          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {day.precipitation >= 1 && (
-              <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12 }}>
-                <span style={{ color: "#2563eb", fontWeight: 700 }}>{day.precipitation.toFixed(1)} mm</span>
+              <span style={{ fontSize: 12, color: "#2563eb", fontWeight: 700 }}>
+                🌧️ {day.precipitation.toFixed(1)} mm
                 {maxPrecipProb !== null && maxPrecipProb > 10 && (
-                  <span style={{ color: probColor(maxPrecipProb), fontWeight: 600 }}>{Math.round(maxPrecipProb)}%</span>
+                  <span style={{ color: probColor(maxPrecipProb), marginLeft: 3 }}>{Math.round(maxPrecipProb)}%</span>
                 )}
-              </div>
+              </span>
             )}
             <span style={{ fontSize: 12, color: windColor(day.windSpeed), fontWeight: 600 }}>
-              💨 {Math.round(day.windSpeed)} km/h
+              💨 {Math.round(day.windSpeed)}
             </span>
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
               style={{ color: "#94a3b8", transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}>
@@ -190,6 +173,28 @@ function DayRow({
             </svg>
           </div>
         </div>
+
+        {/* Ligne 2 : Matin / Après-midi avec labels texte */}
+        {(morningTemp !== null || afternoonTemp !== null) && (
+          <div style={{ display: "flex", gap: 14, marginTop: 5, fontSize: 12, color: "#64748b", flexWrap: "wrap" }}>
+            {morningTemp !== null && (
+              <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <span>🌅</span>
+                <span style={{ color: "#94a3b8" }}>Matin</span>
+                <span style={{ color: tempColor(morningTemp), fontWeight: 700 }}>{Math.round(morningTemp)}°</span>
+                {morningPrecip >= 1 && <span style={{ color: "#60a5fa", fontWeight: 600 }}>{morningPrecip.toFixed(1)} mm</span>}
+              </span>
+            )}
+            {afternoonTemp !== null && (
+              <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <span>☀️</span>
+                <span style={{ color: "#94a3b8" }}>Après-midi</span>
+                <span style={{ color: tempColor(afternoonTemp), fontWeight: 700 }}>{Math.round(afternoonTemp)}°</span>
+                {afternoonPrecip >= 1 && <span style={{ color: "#60a5fa", fontWeight: 600 }}>{afternoonPrecip.toFixed(1)} mm</span>}
+              </span>
+            )}
+          </div>
+        )}
       </button>
 
       {isExpanded && hourly.length > 0 && (
