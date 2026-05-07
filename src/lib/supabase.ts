@@ -139,7 +139,7 @@ async function updateAllReputations(vote: VoteValue, metier?: string): Promise<v
   const isProfessional = metier && metier !== "grand_public" && metier !== "autre";
   const voteWeight = isProfessional ? 1.5 : 1.0;
   const adjustment =
-    vote === "oui" ? 5 * voteWeight : vote === "partiellement" ? 1 * voteWeight : -3 * voteWeight;
+    vote === "oui" ? 3 * voteWeight : vote === "partiellement" ? 1 * voteWeight : -3 * voteWeight;
 
   const { data: reps } = await admin
     .from("reputations")
