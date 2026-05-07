@@ -113,7 +113,7 @@ export default function VillePage() {
           <ClaudeSynthesis weather={weather} metier={metier} />
 
           {/* Vote */}
-          <VoteButton ville={city} metier={metier} />
+          <VoteButton ville={city} metier={metier} yesterdaySlots={weather.yesterdaySlots} />
         </>
       )}
     </div>

@@ -71,6 +71,16 @@ export interface Divergence {
   message: string;
 }
 
+export interface YesterdaySlot {
+  label: string;
+  hours: string;
+  weatherCode: number;
+  representativeHour: number;
+  tempMin: number;
+  tempMax: number;
+  precipitation: number;
+}
+
 export interface AggregatedDailyForecast {
   date: string;
   tempMax: number;
@@ -114,6 +124,7 @@ export interface AggregatedWeather {
   hourly: AggregatedHourlyForecast[];
   viticulture: ViticultureIndicators;
   historicalPrecip: { date: string; precipitation: number }[];
+  yesterdaySlots: YesterdaySlot[];
   fetchedAt: string;
 }
 

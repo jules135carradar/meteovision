@@ -15,6 +15,53 @@ import { aggregate } from "@/lib/aggregator";
 import { getReputations } from "@/lib/supabase";
 import { Location } from "@/lib/types";
 
+import { YesterdaySlot } from "@/lib/types";
+
+async function fetchYesterdaySlots(lat: number, lon: number): Promise<YesterdaySlot[]> {
+  try {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const dateStr = yesterday.toISOString().slice(0, 10);
+    const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${dateStr}&end_date=${dateStr}&hourly=temperature_2m,precipitation,weather_code&timezone=auto`;
+    const res = await fetch(url, { next: { revalidate: 3600 } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const times: string[]           = data.hourly?.time           ?? [];
+    const temps: (number | null)[]  = data.hourly?.temperature_2m ?? [];
+    const precips: (number | null)[] = data.hourly?.precipitation  ?? [];
+    const codes: (number | null)[]  = data.hourly?.weather_code   ?? [];
+
+    const slotDefs = [
+      { label: "Nuit",       hours: "0h – 6h",   from: 0,  to: 6,  repH: 2  },
+      { label: "Matin",      hours: "6h – 12h",  from: 6,  to: 12, repH: 9  },
+      { label: "Après-midi", hours: "12h – 18h", from: 12, to: 18, repH: 15 },
+      { label: "Soirée",     hours: "18h – 23h", from: 18, to: 23, repH: 20 },
+    ];
+
+    const result: YesterdaySlot[] = [];
+    for (const { label, hours: hoursLabel, from, to, repH } of slotDefs) {
+      const entries = times.map((t, i) => ({ h: parseInt(t.slice(11, 13)), temp: temps[i], precip: precips[i], code: codes[i] }))
+                          .filter(e => e.h >= from && e.h < to);
+      if (entries.length === 0) continue;
+      const validTemps = entries.map(e => e.temp).filter((t): t is number => t !== null);
+      if (validTemps.length === 0) continue;
+      const codeCounts: Record<number, number> = {};
+      for (const e of entries) { if (e.code !== null) codeCounts[e.code] = (codeCounts[e.code] ?? 0) + 1; }
+      const dominant = Object.entries(codeCounts).sort((a, b) => b[1] - a[1])[0];
+      result.push({
+        label,
+        hours: hoursLabel,
+        weatherCode: dominant ? parseInt(dominant[0]) : 0,
+        representativeHour: repH,
+        tempMin: Math.round(Math.min(...validTemps)),
+        tempMax: Math.round(Math.max(...validTemps)),
+        precipitation: entries.reduce((s, e) => s + (e.precip ?? 0), 0),
+      });
+    }
+    return result;
+  } catch { return []; }
+}
+
 async function fetchHistoricalPrecip(lat: number, lon: number): Promise<{ date: string; precipitation: number }[]> {
   try {
     const today = new Date();
@@ -56,7 +103,7 @@ export async function GET(request: NextRequest) {
   const reputations = await getReputations();
 
   // Interroger toutes les sources en parallèle
-  const [ecmwf, gfs, icon, mf, ukmo, gem, yrno, wttr, owm, wapi, histResult] = await Promise.allSettled([
+  const [ecmwf, gfs, icon, mf, ukmo, gem, yrno, wttr, owm, wapi, histResult, slotsResult] = await Promise.allSettled([
     fetchOpenMeteoECMWF(lat, lon, reputations["open-meteo-ecmwf"] ?? 50),
     fetchOpenMeteoGFS(lat, lon, reputations["open-meteo-gfs"] ?? 50),
     fetchOpenMeteoICON(lat, lon, reputations["open-meteo-icon"] ?? 50),
@@ -68,9 +115,11 @@ export async function GET(request: NextRequest) {
     fetchOpenWeatherMap(lat, lon, reputations["openweathermap"] ?? 50),
     fetchWeatherAPI(lat, lon, reputations["weatherapi"] ?? 50),
     fetchHistoricalPrecip(lat, lon),
+    fetchYesterdaySlots(lat, lon),
   ]);
 
   const historicalPrecip = histResult.status === "fulfilled" ? histResult.value : [];
+  const yesterdaySlots   = slotsResult.status === "fulfilled" ? slotsResult.value : [];
 
   const sources = [ecmwf, gfs, icon, mf, ukmo, gem, yrno, wttr, owm, wapi]
     .map((result) => {
@@ -94,7 +143,7 @@ export async function GET(request: NextRequest) {
 
   const aggregated = aggregate(location, activeSources as NonNullable<typeof activeSources[0]>[]);
 
-  return NextResponse.json({ ...aggregated, historicalPrecip }, {
+  return NextResponse.json({ ...aggregated, historicalPrecip, yesterdaySlots }, {
     headers: {
       "Cache-Control": "public, max-age=600, stale-while-revalidate=1200",
     },

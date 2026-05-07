@@ -305,6 +305,7 @@ export function aggregate(
     daily: aggregateDaily(sources),
     hourly: aggregateHourly(sources),
     historicalPrecip: [],
+    yesterdaySlots: [],
     fetchedAt: new Date().toISOString(),
   };
 
