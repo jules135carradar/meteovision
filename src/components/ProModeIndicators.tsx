@@ -9,21 +9,21 @@ export default function ProModeIndicators({ weather, metier }: Props) {
   if (metier === "grand_public") return null;
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
-      <h2 className="text-base font-medium text-slate-700 mb-4 flex items-center gap-2">
-        🎯 Indicateurs professionnels
-        <span className="text-sm font-normal text-slate-400 capitalize">
-          — {METIER_LABELS[metier] ?? metier}
-        </span>
-      </h2>
+    <div style={{ borderRadius: 20, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "2px solid transparent", background: "linear-gradient(#fff,#fff) padding-box, linear-gradient(90deg,#f59e0b,#ef4444,#7c3aed) border-box" }}>
+      <div style={{ background: "linear-gradient(90deg,#b45309,#9f1239,#6d28d9)", padding: "13px 24px", display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>🎯 Indicateurs professionnels</span>
+        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", textTransform: "capitalize" }}>— {METIER_LABELS[metier] ?? metier}</span>
+      </div>
+      <div style={{ padding: 20 }}>
 
-      {metier === "viticulteur" && <ViticulteurPanel weather={weather} />}
-      {metier === "agriculteur" && <AgriculteurPanel weather={weather} />}
-      {metier === "btp" && <BTPPanel weather={weather} />}
-      {metier === "transport" && <TransportPanel weather={weather} />}
-      {metier === "evenementiel" && <EvenementielPanel weather={weather} />}
-      {metier === "nautisme" && <NautismePanel weather={weather} />}
-      {metier === "pompier" && <PompierPanel weather={weather} />}
+        {metier === "viticulteur" && <ViticulteurPanel weather={weather} />}
+        {metier === "agriculteur" && <AgriculteurPanel weather={weather} />}
+        {metier === "btp" && <BTPPanel weather={weather} />}
+        {metier === "transport" && <TransportPanel weather={weather} />}
+        {metier === "evenementiel" && <EvenementielPanel weather={weather} />}
+        {metier === "nautisme" && <NautismePanel weather={weather} />}
+        {metier === "pompier" && <PompierPanel weather={weather} />}
+      </div>
     </div>
   );
 }
@@ -56,10 +56,19 @@ function RiskBadge({ level, labels }: { level: string; labels: Record<string, st
   );
 }
 
+const CARD_GRADIENTS = [
+  { bg: "linear-gradient(135deg,#eff6ff,#dbeafe)", border: "#bfdbfe", title: "#1d4ed8" },
+  { bg: "linear-gradient(135deg,#f0fdf4,#d1fae5)", border: "#a7f3d0", title: "#047857" },
+  { bg: "linear-gradient(135deg,#fdf4ff,#ede9fe)", border: "#ddd6fe", title: "#6d28d9" },
+  { bg: "linear-gradient(135deg,#fff7ed,#ffedd5)", border: "#fed7aa", title: "#c2410c" },
+  { bg: "linear-gradient(135deg,#fefce8,#fde68a)", border: "#fcd34d", title: "#92400e" },
+  { bg: "linear-gradient(135deg,#f0f9ff,#e0f2fe)", border: "#7dd3fc", title: "#0369a1" },
+];
 function ProCard({ icon, title, children }: { icon: string; title: string; children: React.ReactNode }) {
+  const g = CARD_GRADIENTS[title.charCodeAt(0) % CARD_GRADIENTS.length];
   return (
-    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-      <p className="text-emerald-500 text-xs uppercase font-medium mb-2 flex items-center gap-1">
+    <div style={{ background: g.bg, borderRadius: 16, padding: 16, border: `1.5px solid ${g.border}` }}>
+      <p style={{ color: g.title, fontSize: 11, textTransform: "uppercase", fontWeight: 800, letterSpacing: "0.05em", marginBottom: 8, display: "flex", alignItems: "center", gap: 4 }}>
         <span>{icon}</span> {title}
       </p>
       {children}
