@@ -12,6 +12,7 @@ import MetierSelector from "@/components/MetierSelector";
 import HourlyForecast from "@/components/HourlyForecast";
 import SearchBar from "@/components/SearchBar";
 import WeatherBackground from "@/components/WeatherBackground";
+import RainCumulTable from "@/components/RainCumulTable";
 
 export default function VillePage() {
   const params = useSearchParams();
@@ -99,14 +100,17 @@ export default function VillePage() {
           {/* Prévisions heure par heure */}
           <HourlyForecast hourly={weather.hourly} />
 
+          {/* Prévisions 7 jours */}
+          <DailyForecast daily={weather.daily} hourly={weather.hourly} />
+
+          {/* Cumul précipitations 7 jours */}
+          <RainCumulTable daily={weather.daily} />
+
           {/* Indicateurs pro */}
           <ProModeIndicators weather={weather} metier={metier} />
 
           {/* Synthèse Claude */}
           <ClaudeSynthesis weather={weather} metier={metier} />
-
-          {/* Prévisions 7 jours */}
-          <DailyForecast daily={weather.daily} hourly={weather.hourly} />
 
           {/* Vote */}
           <VoteButton ville={city} metier={metier} />
