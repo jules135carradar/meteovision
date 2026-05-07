@@ -304,6 +304,7 @@ export function aggregate(
     divergences: detectDivergences(sources),
     daily: aggregateDaily(sources),
     hourly: aggregateHourly(sources),
+    historicalPrecip: [],
     fetchedAt: new Date().toISOString(),
   };
 

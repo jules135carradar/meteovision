@@ -113,6 +113,7 @@ export interface AggregatedWeather {
   daily: AggregatedDailyForecast[];
   hourly: AggregatedHourlyForecast[];
   viticulture: ViticultureIndicators;
+  historicalPrecip: { date: string; precipitation: number }[];
   fetchedAt: string;
 }
 

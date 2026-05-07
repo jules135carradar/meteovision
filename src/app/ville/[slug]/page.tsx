@@ -103,8 +103,8 @@ export default function VillePage() {
           {/* Prévisions 7 jours */}
           <DailyForecast daily={weather.daily} hourly={weather.hourly} />
 
-          {/* Cumul précipitations 7 jours */}
-          <RainCumulTable daily={weather.daily} />
+          {/* Cumul précipitations 14 jours */}
+          <RainCumulTable daily={weather.daily} historicalPrecip={weather.historicalPrecip} />
 
           {/* Indicateurs pro */}
           <ProModeIndicators weather={weather} metier={metier} />
