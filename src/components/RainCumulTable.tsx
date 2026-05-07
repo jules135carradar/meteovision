@@ -82,13 +82,12 @@ function PrecipBar({ day, maxPrecip, isToday = false, isHistorical = false }: {
 
 interface Props {
   daily: AggregatedDailyForecast[];
-  historicalPrecip: { date: string; precipitation: number }[];
+  historicalPrecip?: { date: string; precipitation: number }[];
 }
 
-export default function RainCumulTable({ daily, historicalPrecip }: Props) {
+export default function RainCumulTable({ daily, historicalPrecip = [] }: Props) {
   if (daily.length === 0) return null;
 
-  const todayStr     = daily[0]?.date ?? "";
   const allDays      = [...historicalPrecip, ...daily.map((d) => ({ date: d.date, precipitation: d.precipitation }))];
   const globalMax    = Math.max(...allDays.map((d) => d.precipitation), 0.1);
 
