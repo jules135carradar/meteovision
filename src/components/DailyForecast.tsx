@@ -138,7 +138,7 @@ function DayRow({
         onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = isToday ? "#fef9c3" : "#f8fafc"; }}
         onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = rowBg; }}
       >
-        {/* Ligne 1 : jour · icône · températures · pluie · vent · chevron */}
+        {/* Ligne 1 : jour · icône · températures · vent · chevron */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%" }}>
           <span style={{ fontSize: 14, fontWeight: 600, minWidth: 96, color: isToday ? "#92400e" : "#334155", flexShrink: 0 }}>
             {isToday ? "Aujourd'hui" : formatDayLabel(day.date)}
@@ -156,14 +156,6 @@ function DayRow({
           </div>
 
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-            {day.precipitation >= 1 && (
-              <span style={{ fontSize: 12, color: "#2563eb", fontWeight: 700 }}>
-                🌧️ {day.precipitation.toFixed(1)} mm
-                {maxPrecipProb !== null && maxPrecipProb > 10 && (
-                  <span style={{ color: probColor(maxPrecipProb), marginLeft: 3 }}>{Math.round(maxPrecipProb)}%</span>
-                )}
-              </span>
-            )}
             <span style={{ fontSize: 12, color: windColor(day.windSpeed), fontWeight: 600 }}>
               💨 {Math.round(day.windSpeed)}
             </span>
@@ -174,9 +166,19 @@ function DayRow({
           </div>
         </div>
 
-        {/* Ligne 2 : Matin / Après-midi avec labels texte */}
-        {(morningTemp !== null || afternoonTemp !== null) && (
-          <div style={{ display: "flex", gap: 16, marginTop: 10, fontSize: 12, color: "#64748b", flexWrap: "wrap" }}>
+        {/* Ligne 2 : pluie · Matin · Après-midi */}
+        {(day.precipitation >= 1 || morningTemp !== null || afternoonTemp !== null) && (
+          <div style={{ display: "flex", gap: 12, marginTop: 10, fontSize: 12, color: "#64748b", flexWrap: "wrap" }}>
+            {day.precipitation >= 1 && (
+              <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <span style={{ color: "#2563eb", fontWeight: 700 }}>
+                  🌧️ {day.precipitation.toFixed(1)} mm
+                </span>
+                {maxPrecipProb !== null && maxPrecipProb > 10 && (
+                  <span style={{ color: probColor(maxPrecipProb), fontWeight: 600 }}>{Math.round(maxPrecipProb)}%</span>
+                )}
+              </span>
+            )}
             {morningTemp !== null && (
               <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
                 <span>🌅</span>
