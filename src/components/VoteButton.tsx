@@ -22,8 +22,8 @@ function SlotCard({ slot }: { slot: YesterdaySlot }) {
       border: `1.5px solid ${colors.border}`,
       borderRadius: 14,
       padding: "12px 14px",
-      flex: 1,
-      minWidth: 0,
+      width: "100%",
+      boxSizing: "border-box",
       display: "flex",
       flexDirection: "column",
       gap: 6,
@@ -152,7 +152,9 @@ export default function VoteButton({ ville, metier, yesterdaySlots = [] }: Props
             </p>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {yesterdaySlots.map((slot) => (
-                <SlotCard key={slot.label} slot={slot} />
+                <div key={slot.label} style={{ flex: "1 1 140px", minWidth: "calc(50% - 4px)", maxWidth: "calc(50% - 4px)" }}>
+                  <SlotCard slot={slot} />
+                </div>
               ))}
             </div>
           </div>
