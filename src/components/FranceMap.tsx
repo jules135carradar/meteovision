@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Popup, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFavorites } from "@/lib/useFavorites";
 import { WMO_CODES } from "@/lib/weather-codes";
 
@@ -163,6 +163,40 @@ function MiniWeatherPopup({
   );
 }
 
+function FavoritePopup({ fav, onGo }: { fav: { name: string; lat: number; lon: number; admin1?: string }; onGo: () => void }) {
+  const [weather, setWeather] = useState<CurrentWeather | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${fav.lat}&longitude=${fav.lon}&current=temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m&wind_speed_unit=kmh&timezone=auto`
+    )
+      .then((r) => r.json())
+      .then((data) => {
+        const cur = data?.current;
+        if (cur) setWeather({
+          temp:        Math.round(cur.temperature_2m),
+          weatherCode: cur.weather_code ?? 0,
+          windSpeed:   Math.round(cur.wind_speed_10m),
+          humidity:    Math.round(cur.relative_humidity_2m),
+        });
+      })
+      .finally(() => setLoading(false));
+  }, [fav.lat, fav.lon]);
+
+  return (
+    <MiniWeatherPopup
+      cityName={`⭐ ${fav.name}`}
+      admin1={fav.admin1 ?? null}
+      lat={fav.lat}
+      lon={fav.lon}
+      weather={weather}
+      loading={loading}
+      onGo={onGo}
+    />
+  );
+}
+
 export default function FranceMap() {
   const router = useRouter();
   const { favorites } = useFavorites();
@@ -194,26 +228,10 @@ export default function FranceMap() {
       {favorites.map((fav) => (
         <Marker key={`${fav.lat}-${fav.lon}`} position={[fav.lat, fav.lon]} icon={STAR_ICON}>
           <Popup>
-            <div style={{ textAlign: "center", minWidth: 150 }}>
-              <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>⭐ {fav.name}</div>
-              {fav.admin1 && <div style={{ fontSize: 12, color: "#64748b", marginBottom: 8 }}>{fav.admin1}</div>}
-              <button
-                onClick={() => goToWeather(fav.name, fav.lat, fav.lon, fav.admin1 ?? "")}
-                style={{
-                  background: "linear-gradient(90deg,#059669,#0284c7)",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 8,
-                  padding: "7px 14px",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  width: "100%",
-                }}
-              >
-                Voir la météo →
-              </button>
-            </div>
+            <FavoritePopup
+              fav={fav}
+              onGo={() => goToWeather(fav.name, fav.lat, fav.lon, fav.admin1 ?? "")}
+            />
           </Popup>
         </Marker>
       ))}
