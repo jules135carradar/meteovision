@@ -68,8 +68,8 @@ function TempChart({ hourly }: { hourly: AggregatedHourlyForecast[] }) {
   for (let t = Math.ceil(minT / yStep) * yStep; t <= maxT; t += yStep) gridTemps.push(t);
 
   return (
-    <div style={{ overflowX: "auto", background: "#fff", padding: "8px 0 0" }}>
-      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", minWidth: 360, height: "auto", display: "block" }}>
+    <div style={{ overflowX: "auto", background: "#fff", padding: "8px 0 0", WebkitOverflowScrolling: "touch" }}>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 900, minWidth: 900, height: 320, display: "block" }}>
         <defs>
           <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#6d28d9" stopOpacity="0.18" />
