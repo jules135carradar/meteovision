@@ -3,6 +3,7 @@ import "./globals.css";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import ServiceWorkerInit from "@/components/ServiceWorkerInit";
+import InstallButton from "@/components/InstallButton";
 
 export const metadata: Metadata = {
   title: "MétéoVision — Prévisions consolidées de 5+ sources",
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span>MétéoVision</span>
             </Link>
             <div className="flex items-center gap-1">
+              <InstallButton />
               <Link
                 href="/carte"
                 className="text-slate-500 hover:text-emerald-500 text-sm font-medium transition-colors flex items-center gap-1.5 min-h-[44px] px-2"
