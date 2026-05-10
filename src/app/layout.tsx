@@ -20,17 +20,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Logo size={26} />
               <span>MétéoVision</span>
             </Link>
-            <Link
-              href="/reputation"
-              className="text-slate-500 hover:text-emerald-500 text-sm font-medium transition-colors flex items-center gap-1.5 min-h-[44px] px-2"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
-                <rect x="1" y="9" width="3" height="6" rx="1" fill="currentColor" opacity=".5"/>
-                <rect x="6" y="5" width="3" height="10" rx="1" fill="currentColor" opacity=".7"/>
-                <rect x="11" y="1" width="3" height="14" rx="1" fill="currentColor"/>
-              </svg>
-              <span className="hidden sm:inline">Réputation</span>
-            </Link>
+            <div className="flex items-center gap-1">
+              <Link
+                href="/carte"
+                className="text-slate-500 hover:text-emerald-500 text-sm font-medium transition-colors flex items-center gap-1.5 min-h-[44px] px-2"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                  <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+                  <line x1="9" y1="3" x2="9" y2="18"/>
+                  <line x1="15" y1="6" x2="15" y2="21"/>
+                </svg>
+                <span className="hidden sm:inline">Carte</span>
+              </Link>
+              <Link
+                href="/reputation"
+                className="text-slate-500 hover:text-emerald-500 text-sm font-medium transition-colors flex items-center gap-1.5 min-h-[44px] px-2"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
+                  <rect x="1" y="9" width="3" height="6" rx="1" fill="currentColor" opacity=".5"/>
+                  <rect x="6" y="5" width="3" height="10" rx="1" fill="currentColor" opacity=".7"/>
+                  <rect x="11" y="1" width="3" height="14" rx="1" fill="currentColor"/>
+                </svg>
+                <span className="hidden sm:inline">Réputation</span>
+              </Link>
+            </div>
           </div>
         </nav>
 
