@@ -16,6 +16,7 @@ import RainCumulTable from "@/components/RainCumulTable";
 import InterventionWindows from "@/components/InterventionWindows";
 import AlertsPanel from "@/components/AlertsPanel";
 import { useFavorites } from "@/lib/useFavorites";
+import WeatherChat from "@/components/WeatherChat";
 
 export default function VillePage() {
   const params = useSearchParams();
@@ -164,6 +165,9 @@ export default function VillePage() {
 
           {/* Vote */}
           <VoteButton ville={city} metier={metier} yesterdaySlots={weather.yesterdaySlots} />
+
+          {/* Chat IA flottant */}
+          <WeatherChat weather={weather} metier={metier} />
         </>
       )}
     </div>
