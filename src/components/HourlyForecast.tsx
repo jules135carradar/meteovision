@@ -38,8 +38,8 @@ const COL_COLORS = ["#6d28d9", "#6d28d9", "#2563eb", "#0891b2", "#0891b2", "#256
 
 function TempChart({ hourly }: { hourly: AggregatedHourlyForecast[] }) {
   const W = 800;
-  const H = 220;
-  const PAD = { top: 32, bottom: 44, left: 38, right: 16 };
+  const H = 320;
+  const PAD = { top: 40, bottom: 50, left: 42, right: 20 };
   const innerW = W - PAD.left - PAD.right;
   const innerH = H - PAD.top - PAD.bottom;
 
@@ -165,7 +165,7 @@ function TempChart({ hourly }: { hourly: AggregatedHourlyForecast[] }) {
 
 export default function HourlyForecast({ hourly }: { hourly: AggregatedHourlyForecast[] }) {
   const next24 = hourly.slice(0, 24);
-  const [view, setView] = useState<"graph" | "table">("graph");
+  const [view, setView] = useState<"graph" | "table">("table");
 
   if (next24.length === 0) return null;
 
