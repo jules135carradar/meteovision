@@ -32,7 +32,12 @@ export async function POST(request: NextRequest) {
 
     const metierLabel = METIER_LABELS[metier] ?? "utilisateur";
 
+    const today = new Date();
+    const todayStr = today.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
     const systemPrompt = `Tu es un assistant météo expert intégré à MétéoVision. L'utilisateur est ${metierLabel === "grand public" ? "du" : "un"} ${metierLabel}.
+
+Aujourd'hui c'est le ${todayStr}. Utilise cette date pour calculer correctement les jours de la semaine — ne te trompe jamais sur le jour correspondant à une date.
 
 Voici les données météo actuelles et les prévisions pour ${weatherContext.city} :
 
@@ -53,9 +58,11 @@ ${weatherContext.daily.map((d: {date: string; tempMax: number; tempMin: number; 
 ).join("\n")}
 
 PRÉVISIONS HORAIRES (48h) :
-${weatherContext.hourly.slice(0, 48).map((h: {time: string; temperature: number; precipitation: number; precipitationProbability: number; windSpeed: number; description: string}) =>
-  `- ${new Date(h.time).toLocaleString("fr-FR", { weekday: "short", hour: "2-digit", minute: "2-digit" })} : ${h.temperature.toFixed(1)}°C, pluie ${h.precipitation.toFixed(1)}mm (${h.precipitationProbability.toFixed(0)}%), vent ${h.windSpeed.toFixed(0)}km/h`
-).join("\n")}
+${weatherContext.hourly.slice(0, 48).map((h: {time: string; temperature: number; precipitation: number; precipitationProbability: number; windSpeed: number; description: string}) => {
+  const d = new Date(h.time);
+  const label = d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }) + " " + d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  return `- ${label} : ${h.temperature.toFixed(1)}°C, pluie ${h.precipitation.toFixed(1)}mm (${h.precipitationProbability.toFixed(0)}%), vent ${h.windSpeed.toFixed(0)}km/h`;
+}).join("\n")}
 ${weatherContext.viticulture ? `
 INDICATEURS VITICULTURE :
 - Risque gel : ${weatherContext.viticulture.frostRiskLevel}
@@ -64,7 +71,7 @@ INDICATEURS VITICULTURE :
 - Fenêtre de traitement : ${weatherContext.viticulture.treatmentWindow ? "Favorable" : "Défavorable"}
 - Cumul pluie 7j : ${weatherContext.viticulture.rainCumul7d} mm` : ""}
 
-Réponds en français, de manière concise et pratique (3-5 phrases max). Donne des recommandations concrètes et des jours précis quand c'est possible. Base-toi uniquement sur les données fournies.`;
+Réponds en français en 2-3 phrases maximum. Sois direct et concret. Donne un jour précis si possible. Ne dépasse jamais 3 phrases. Base-toi uniquement sur les données fournies.`;
 
     const messages = [
       ...(history ?? []),
@@ -73,7 +80,7 @@ Réponds en français, de manière concise et pratique (3-5 phrases max). Donne 
 
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 500,
+      max_tokens: 250,
       system: systemPrompt,
       messages,
     });
