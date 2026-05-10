@@ -1,4 +1,5 @@
 import SearchBar from "@/components/SearchBar";
+import FavoritesSection from "@/components/FavoritesSection";
 
 const EXEMPLES = [
   { name: "Paris",      lat: 48.8566, lon: 2.3522  },
@@ -28,7 +29,11 @@ export default function Home() {
           <SearchBar autoFocus />
         </div>
 
-        <div className="mt-5 flex flex-wrap justify-center gap-2">
+        <div className="mt-5">
+          <FavoritesSection />
+        </div>
+
+        <div className="mt-2 flex flex-wrap justify-center gap-2">
           {EXEMPLES.map((v) => (
             <a
               key={v.name}

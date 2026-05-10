@@ -13,6 +13,7 @@ import HourlyForecast from "@/components/HourlyForecast";
 import SearchBar from "@/components/SearchBar";
 import WeatherBackground from "@/components/WeatherBackground";
 import RainCumulTable from "@/components/RainCumulTable";
+import { useFavorites } from "@/lib/useFavorites";
 
 export default function VillePage() {
   const params = useSearchParams();
@@ -25,6 +26,20 @@ export default function VillePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [metier, setMetier] = useState<string>("grand_public");
+
+  const { isFavorite, addFavorite, removeFavorite } = useFavorites();
+  const slug = params.get("city")?.toLowerCase().replace(/\s+/g, "-") ?? "ville";
+  const latNum = parseFloat(lat ?? "0");
+  const lonNum = parseFloat(lon ?? "0");
+  const isFav = isFavorite(latNum, lonNum);
+
+  function toggleFavorite() {
+    if (isFav) {
+      removeFavorite(latNum, lonNum);
+    } else {
+      addFavorite({ name: city, slug, lat: latNum, lon: lonNum, admin1: admin1 || undefined });
+    }
+  }
 
   useEffect(() => {
     // Restaurer le métier depuis localStorage
@@ -73,9 +88,34 @@ export default function VillePage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-      {/* Barre de recherche compacte */}
-      <div className="max-w-md">
-        <SearchBar />
+      {/* Barre de recherche + favoris */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, maxWidth: 448 }}>
+        <div style={{ flex: 1 }}>
+          <SearchBar />
+        </div>
+        {lat && lon && (
+          <button
+            onClick={toggleFavorite}
+            title={isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
+            style={{
+              flexShrink: 0,
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              border: isFav ? "1.5px solid #fde68a" : "1.5px solid #e2e8f0",
+              background: isFav ? "linear-gradient(135deg,#fefce8,#fef9c3)" : "#fff",
+              cursor: "pointer",
+              fontSize: 22,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.15s",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+            }}
+          >
+            {isFav ? "⭐" : "☆"}
+          </button>
+        )}
       </div>
 
       {loading && <LoadingSkeleton city={city} />}
