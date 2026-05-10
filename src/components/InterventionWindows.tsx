@@ -10,130 +10,264 @@ interface WindowDef {
   description: string;
   minHours: number;
   dayOnly: boolean;
+  months: number[]; // mois actifs (1=jan … 12=dec)
   check: (h: AggregatedHourlyForecast) => boolean;
 }
+
+const ALL_MONTHS = [1,2,3,4,5,6,7,8,9,10,11,12];
 
 const RULES: Record<string, WindowDef[]> = {
   viticulteur: [
     {
-      label: "Traitement phyto",
+      label: "Taille de la vigne",
+      icon: "✂️", description: "T° > 2°C · Vent < 30 km/h · Sec",
+      minHours: 3, dayOnly: true, months: [1,2,3,12],
+      check: (h) => h.temperature > 2 && h.windSpeed < 30 && h.precipitation < 0.5,
+    },
+    {
+      label: "Protection gel printanier",
+      icon: "🥶", description: "Surveillance T° nocturne — risque gel",
+      minHours: 1, dayOnly: false, months: [3,4,5],
+      check: (h) => h.temperature > 0, // fenêtre = heures sans gel
+    },
+    {
+      label: "Traitement phyto (mildiou / oïdium)",
       icon: "🧪", description: "Vent < 15 km/h · Sec · 8–28°C",
-      minHours: 2, dayOnly: true,
+      minHours: 2, dayOnly: true, months: [4,5,6,7,8,9],
       check: (h) => h.windSpeed < 15 && h.precipitation < 0.1 && h.temperature >= 8 && h.temperature <= 28,
     },
     {
-      label: "Récolte / Vendanges",
-      icon: "🍇", description: "Sec · T° > 15°C",
-      minHours: 4, dayOnly: true,
-      check: (h) => h.precipitation < 0.1 && h.temperature > 15,
+      label: "Vendanges",
+      icon: "🍇", description: "Sec · T° > 15°C · Vent < 25 km/h",
+      minHours: 4, dayOnly: true, months: [8,9,10],
+      check: (h) => h.precipitation < 0.1 && h.temperature > 15 && h.windSpeed < 25,
+    },
+    {
+      label: "Travaux de sol / Labour",
+      icon: "🚜", description: "Sec · Sol non saturé",
+      minHours: 4, dayOnly: true, months: [10,11],
+      check: (h) => h.precipitation < 0.1 && h.windSpeed < 35,
     },
   ],
+
   agriculteur: [
     {
-      label: "Traitement",
+      label: "Semis de printemps",
+      icon: "🌱", description: "T° > 8°C · Sec · Vent < 25 km/h",
+      minHours: 3, dayOnly: true, months: [3,4,5,6],
+      check: (h) => h.temperature > 8 && h.precipitation < 0.3 && h.windSpeed < 25,
+    },
+    {
+      label: "Traitement phyto",
       icon: "🧪", description: "Vent < 19 km/h · Sec · 5–28°C",
-      minHours: 2, dayOnly: true,
+      minHours: 2, dayOnly: true, months: [4,5,6,7,8,9],
       check: (h) => h.windSpeed < 19 && h.precipitation < 0.1 && h.temperature >= 5 && h.temperature <= 28,
     },
     {
-      label: "Semis / Plantation",
-      icon: "🌱", description: "T° > 8°C · Sec",
-      minHours: 3, dayOnly: true,
-      check: (h) => h.temperature > 8 && h.precipitation < 0.5,
+      label: "Irrigation",
+      icon: "💧", description: "T° > 18°C · Vent < 15 km/h",
+      minHours: 2, dayOnly: true, months: [6,7,8,9],
+      check: (h) => h.temperature > 18 && h.windSpeed < 15,
+    },
+    {
+      label: "Semis d'automne (blé, orge)",
+      icon: "🌾", description: "T° 5–20°C · Sec · Sol non saturé",
+      minHours: 4, dayOnly: true, months: [9,10,11],
+      check: (h) => h.temperature >= 5 && h.temperature <= 20 && h.precipitation < 0.1,
+    },
+    {
+      label: "Travaux de sol",
+      icon: "🚜", description: "Sec · Vent < 30 km/h",
+      minHours: 4, dayOnly: true, months: [11,12,1,2],
+      check: (h) => h.precipitation < 0.3 && h.windSpeed < 30 && h.temperature > 2,
     },
   ],
+
   grandes_cultures: [
     {
-      label: "Récolte / Moisson",
+      label: "Semis de printemps",
+      icon: "🌱", description: "T° > 8°C · Sec · Vent < 25 km/h",
+      minHours: 4, dayOnly: true, months: [3,4,5],
+      check: (h) => h.temperature > 8 && h.precipitation < 0.1 && h.windSpeed < 25,
+    },
+    {
+      label: "Traitement (fongicide / herbicide)",
+      icon: "🧪", description: "Vent < 19 km/h · Sec · T° 5–25°C",
+      minHours: 2, dayOnly: true, months: [4,5,6,7],
+      check: (h) => h.windSpeed < 19 && h.precipitation < 0.1 && h.temperature >= 5 && h.temperature <= 25,
+    },
+    {
+      label: "Moisson / Récolte",
       icon: "🌾", description: "T° > 15°C · HR < 70% · Sec",
-      minHours: 4, dayOnly: true,
+      minHours: 4, dayOnly: true, months: [6,7,8],
       check: (h) => h.temperature > 15 && h.humidity < 70 && h.precipitation < 0.1,
     },
     {
-      label: "Traitement",
-      icon: "🧪", description: "Vent < 19 km/h · Sec",
-      minHours: 2, dayOnly: true,
-      check: (h) => h.windSpeed < 19 && h.precipitation < 0.1 && h.temperature >= 5,
+      label: "Semis d'automne (blé, colza)",
+      icon: "🌱", description: "T° 5–20°C · Sec",
+      minHours: 4, dayOnly: true, months: [8,9,10],
+      check: (h) => h.temperature >= 5 && h.temperature <= 20 && h.precipitation < 0.1,
+    },
+    {
+      label: "Labour / Préparation sol",
+      icon: "🚜", description: "Sec · T° > 2°C",
+      minHours: 4, dayOnly: true, months: [10,11,12],
+      check: (h) => h.precipitation < 0.3 && h.temperature > 2,
     },
   ],
+
   apiculture: [
     {
-      label: "Butinage",
-      icon: "🐝", description: "T° > 12°C · Vent < 20 km/h · Sec",
-      minHours: 2, dayOnly: true,
+      label: "Surveillance hivernage",
+      icon: "🏠", description: "Éviter les visites par T° < 8°C ou vent fort",
+      minHours: 2, dayOnly: true, months: [11,12,1,2],
+      check: (h) => h.temperature >= 8 && h.windSpeed < 20 && h.precipitation < 0.5,
+    },
+    {
+      label: "Première visite de printemps",
+      icon: "🌸", description: "T° > 14°C · Vent < 15 km/h · Sec",
+      minHours: 1, dayOnly: true, months: [2,3],
+      check: (h) => h.temperature > 14 && h.windSpeed < 15 && h.precipitation < 0.1,
+    },
+    {
+      label: "Période d'essaimage",
+      icon: "🐝", description: "T° > 18°C · Sec · Surveiller les colonies",
+      minHours: 2, dayOnly: true, months: [4,5,6],
+      check: (h) => h.temperature > 18 && h.precipitation < 0.1 && h.windSpeed < 20,
+    },
+    {
+      label: "Butinage / Grande miellée",
+      icon: "🍯", description: "T° > 12°C · Vent < 20 km/h · Sec",
+      minHours: 3, dayOnly: true, months: [6,7,8],
       check: (h) => h.temperature > 12 && h.windSpeed < 20 && h.precipitation < 0.1,
     },
     {
-      label: "Visite des ruches",
-      icon: "🪣", description: "T° > 15°C · Vent < 15 km/h · Sec",
-      minHours: 1, dayOnly: true,
-      check: (h) => h.temperature > 15 && h.windSpeed < 15 && h.precipitation < 0.1,
+      label: "Récolte du miel",
+      icon: "🫙", description: "T° > 20°C · Sec · HR < 60%",
+      minHours: 3, dayOnly: true, months: [7,8,9],
+      check: (h) => h.temperature > 20 && h.precipitation < 0.1 && h.humidity < 60,
+    },
+    {
+      label: "Préparation hivernage",
+      icon: "🍂", description: "T° > 10°C · Derniers traitements varroa",
+      minHours: 2, dayOnly: true, months: [9,10],
+      check: (h) => h.temperature > 10 && h.precipitation < 0.3 && h.windSpeed < 20,
     },
   ],
+
   forestier: [
     {
-      label: "Abattage",
-      icon: "🌲", description: "Vent < 40 km/h",
-      minHours: 3, dayOnly: true,
-      check: (h) => h.windSpeed < 40,
+      label: "Abattage (sève basse)",
+      icon: "🌲", description: "Vent < 40 km/h · Période optimale",
+      minHours: 3, dayOnly: true, months: [10,11,12,1,2,3],
+      check: (h) => h.windSpeed < 40 && h.precipitation < 1,
     },
     {
       label: "Débardage / Engins",
-      icon: "🚜", description: "Vent < 30 km/h · Sec",
-      minHours: 4, dayOnly: true,
-      check: (h) => h.windSpeed < 30 && h.precipitation < 0.5,
+      icon: "🚜", description: "Sec · Vent < 30 km/h · Sols portants",
+      minHours: 4, dayOnly: true, months: ALL_MONTHS,
+      check: (h) => h.windSpeed < 30 && h.precipitation < 0.3,
+    },
+    {
+      label: "Prévention incendie (DFCI)",
+      icon: "🔥", description: "Surveiller : T° > 25°C + HR < 40% + Vent > 30",
+      minHours: 1, dayOnly: true, months: [5,6,7,8,9],
+      // Fenêtre = heures à risque faible
+      check: (h) => !(h.temperature > 25 && h.humidity < 40 && h.windSpeed > 30),
+    },
+    {
+      label: "Plantation / Reboisement",
+      icon: "🌱", description: "T° 5–20°C · Humide · Pas de gel",
+      minHours: 4, dayOnly: true, months: [10,11,2,3,4],
+      check: (h) => h.temperature >= 5 && h.temperature <= 20 && h.precipitation < 2 && h.humidity > 50,
     },
   ],
+
   sport_outdoor: [
+    {
+      label: "Randonnée / Raquettes",
+      icon: "🥾", description: "Pas d'orage · Vent < 50 km/h · Visibilité OK",
+      minHours: 3, dayOnly: true, months: [11,12,1,2,3],
+      check: (h) => h.weatherCode < 95 && h.windSpeed < 50 && h.precipitation < 3,
+    },
     {
       label: "Trail / Randonnée",
       icon: "🏃", description: "Pas d'orage · T° 5–35°C · Vent < 50 km/h",
-      minHours: 3, dayOnly: true,
+      minHours: 3, dayOnly: true, months: [3,4,5,6,7,8,9,10],
       check: (h) => h.weatherCode < 95 && h.temperature >= 5 && h.temperature <= 35 && h.windSpeed < 50 && h.precipitation < 2,
     },
     {
-      label: "Cyclisme",
+      label: "Cyclisme / VTT",
       icon: "🚴", description: "Sec · Vent < 40 km/h · T° > 8°C",
-      minHours: 2, dayOnly: true,
+      minHours: 2, dayOnly: true, months: [3,4,5,6,7,8,9,10],
       check: (h) => h.precipitation < 0.5 && h.windSpeed < 40 && h.temperature > 8,
     },
   ],
+
   btp: [
     {
       label: "Coulage béton",
       icon: "🪨", description: "T° 5–30°C · Sec · Vent < 30 km/h",
-      minHours: 4, dayOnly: true,
+      minHours: 4, dayOnly: true, months: ALL_MONTHS,
       check: (h) => h.temperature >= 5 && h.temperature <= 30 && h.precipitation < 0.1 && h.windSpeed < 30,
     },
     {
       label: "Grue (seuil 45 km/h)",
       icon: "🏗️", description: "Vent < 45 km/h",
-      minHours: 2, dayOnly: false,
+      minHours: 2, dayOnly: false, months: ALL_MONTHS,
       check: (h) => h.windSpeed < 45,
     },
+    {
+      label: "Travaux d'étanchéité / Toiture",
+      icon: "🏠", description: "Sec · Vent < 30 km/h · T° > 5°C",
+      minHours: 4, dayOnly: true, months: ALL_MONTHS,
+      check: (h) => h.precipitation < 0.1 && h.windSpeed < 30 && h.temperature > 5,
+    },
   ],
+
   evenementiel: [
+    {
+      label: "Événement hivernal extérieur",
+      icon: "❄️", description: "Pas de verglas · Vent < 40 km/h",
+      minHours: 4, dayOnly: true, months: [11,12,1,2],
+      check: (h) => h.windSpeed < 40 && h.precipitation < 1 && !(h.temperature < 0),
+    },
     {
       label: "Événement extérieur",
       icon: "🎪", description: "Sec · Vent < 50 km/h · T° > 10°C",
-      minHours: 4, dayOnly: true,
+      minHours: 4, dayOnly: true, months: [3,4,5,6,7,8,9,10],
       check: (h) => h.precipitation < 0.5 && h.windSpeed < 50 && h.temperature > 10,
     },
   ],
+
   nautisme: [
     {
+      label: "Sortie hivernale",
+      icon: "⚓", description: "Vent < 30 km/h (Bf < 6) · Pas d'orage",
+      minHours: 3, dayOnly: true, months: [11,12,1,2,3],
+      check: (h) => h.windSpeed < 30 && h.weatherCode < 95,
+    },
+    {
       label: "Sortie en mer",
-      icon: "⛵", description: "Vent < 50 km/h · Pas d'orage",
-      minHours: 3, dayOnly: true,
+      icon: "⛵", description: "Vent < 50 km/h (Bf < 8) · Pas d'orage",
+      minHours: 3, dayOnly: true, months: [4,5,6,7,8,9,10],
       check: (h) => h.windSpeed < 50 && h.weatherCode < 95,
     },
   ],
+
   transport: [
     {
       label: "Conditions sûres",
-      icon: "🚛", description: "Pas de verglas · Pas de neige · Visibilité OK",
-      minHours: 2, dayOnly: false,
+      icon: "🚛", description: "Pas de verglas · Pas de neige · Bonne visibilité",
+      minHours: 2, dayOnly: false, months: ALL_MONTHS,
       check: (h) => !(h.temperature < 3 && h.humidity > 75) && h.weatherCode < 70,
+    },
+    {
+      label: "Vigilance verglas",
+      icon: "🧊", description: "T° < 4°C — surveiller les routes",
+      minHours: 1, dayOnly: false, months: [11,12,1,2,3],
+      // Fenêtre = heures sans risque verglas
+      check: (h) => h.temperature >= 3 || h.humidity < 70,
     },
   ],
 };
@@ -250,11 +384,16 @@ export default function InterventionWindows({
   hourly: AggregatedHourlyForecast[];
   metier: string;
 }) {
-  const rules = RULES[metier];
-  if (!rules || hourly.length === 0) return null;
+  const allRules = RULES[metier];
+  if (!allRules || hourly.length === 0) return null;
 
   const today = new Date();
   const todayStr = localDateStr(today);
+  const currentMonth = today.getMonth() + 1;
+
+  const rules = allRules.filter((r) => r.months.includes(currentMonth));
+
+  if (rules.length === 0) return null;
 
   // 7 prochains jours
   const days = Array.from({ length: 7 }, (_, i) => {
