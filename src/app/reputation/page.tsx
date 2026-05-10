@@ -4,163 +4,229 @@ import { useEffect, useState } from "react";
 import { ReputationRecord } from "@/lib/types";
 
 const SOURCE_NAMES: Record<string, string> = {
-  "open-meteo-ecmwf": "Open-Meteo (ECMWF)",
-  "open-meteo-gfs": "Open-Meteo GFS (NOAA)",
-  "open-meteo-icon": "Open-Meteo ICON (DWD)",
-  "yr-no": "Yr.no",
-  "wttr-in": "wttr.in",
-  "openweathermap": "OpenWeatherMap",
-  "weatherapi": "WeatherAPI.com",
-  "tomorrow-io": "Tomorrow.io",
-  "visual-crossing": "Visual Crossing",
-  "accuweather": "AccuWeather",
-  "pirate-weather": "Pirate Weather",
-  "meteofrance": "Météo France",
+  "open-meteo-ecmwf": "Open-Meteo ECMWF",
+  "open-meteo-gfs":   "Open-Meteo GFS (NOAA)",
+  "open-meteo-icon":  "Open-Meteo ICON (DWD)",
+  "open-meteo-mf":    "Open-Meteo MF",
+  "open-meteo-ukmo":  "Open-Meteo UKMO",
+  "open-meteo-gem":   "Open-Meteo GEM",
+  "yr-no":            "Yr.no",
+  "wttr-in":          "wttr.in",
+  "openweathermap":   "OpenWeatherMap",
+  "weatherapi":       "WeatherAPI.com",
 };
 
-const SOURCE_URLS: Record<string, string> = {
-  "open-meteo-ecmwf": "https://open-meteo.com",
-  "open-meteo-gfs": "https://open-meteo.com",
-  "open-meteo-icon": "https://open-meteo.com",
-  "yr-no": "https://yr.no",
-  "wttr-in": "https://wttr.in",
-  "openweathermap": "https://openweathermap.org",
-  "weatherapi": "https://weatherapi.com",
-  "tomorrow-io": "https://tomorrow.io",
-  "visual-crossing": "https://visualcrossing.com",
-  "accuweather": "https://accuweather.com",
-  "pirate-weather": "https://pirateweather.net",
-  "meteofrance": "https://meteofrance.fr",
+const SOURCE_FLAGS: Record<string, string> = {
+  "open-meteo-ecmwf": "🇪🇺",
+  "open-meteo-gfs":   "🇺🇸",
+  "open-meteo-icon":  "🇩🇪",
+  "open-meteo-mf":    "🇫🇷",
+  "open-meteo-ukmo":  "🇬🇧",
+  "open-meteo-gem":   "🇨🇦",
+  "yr-no":            "🇳🇴",
+  "wttr-in":          "🌐",
+  "openweathermap":   "🌍",
+  "weatherapi":       "🌍",
 };
+
+function scoreGradient(score: number): string {
+  if (score >= 70) return "linear-gradient(90deg, #10b981, #34d399)";
+  if (score >= 55) return "linear-gradient(90deg, #f59e0b, #fbbf24)";
+  return "linear-gradient(90deg, #ef4444, #f87171)";
+}
+
+function scoreColor(score: number): string {
+  if (score >= 70) return "#047857";
+  if (score >= 55) return "#b45309";
+  return "#991b1b";
+}
+
+function scoreBg(score: number): string {
+  if (score >= 70) return "linear-gradient(135deg, #f0fdf4, #d1fae5)";
+  if (score >= 55) return "linear-gradient(135deg, #fefce8, #fde68a)";
+  return "linear-gradient(135deg, #fff1f2, #fecaca)";
+}
+
+function scoreBorder(score: number): string {
+  if (score >= 70) return "#a7f3d0";
+  if (score >= 55) return "#fcd34d";
+  return "#fca5a5";
+}
+
+const RANK_EMOJI = ["🥇", "🥈", "🥉"];
 
 export default function ReputationPage() {
-  const [records, setRecords] = useState<ReputationRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [records, setRecords]   = useState<ReputationRecord[]>([]);
+  const [loading, setLoading]   = useState(true);
 
   useEffect(() => {
     fetch("/api/reputation")
       .then((r) => r.json())
-      .then((data) => {
-        setRecords(Array.isArray(data) ? data : []);
-      })
+      .then((data) => setRecords(Array.isArray(data) ? data : []))
       .catch(() => setRecords([]))
       .finally(() => setLoading(false));
   }, []);
 
+  const totalVotes = records.reduce((s, r) => s + r.nb_votes, 0);
+  const bestSource = records[0];
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="text-center mb-10">
-        <span className="text-6xl">📊</span>
-        <h1 className="text-4xl font-light text-slate-800 mt-4 mb-3">
+    <div style={{ maxWidth: 760, margin: "0 auto", padding: "40px 16px" }}>
+
+      {/* Header */}
+      <div style={{ textAlign: "center", marginBottom: 36 }}>
+        <span style={{ fontSize: 56 }}>📊</span>
+        <h1 style={{ fontSize: "clamp(1.6rem, 5vw, 2.4rem)", fontWeight: 300, color: "#1e293b", margin: "16px 0 8px" }}>
           Réputation des sources météo
         </h1>
-        <p className="text-slate-400 max-w-xl mx-auto font-light">
-          Les scores sont mis à jour après chaque vote communautaire. Une source fiable voit son
-          poids augmenter dans l'agrégation.
+        <p style={{ color: "#94a3b8", maxWidth: 520, margin: "0 auto", lineHeight: 1.6 }}>
+          Les scores évoluent à chaque vote. Une source fiable pèse plus dans l'agrégation finale.
         </p>
       </div>
 
-      {/* Explication du système */}
-      <div className="bg-white border border-slate-100 shadow-sm rounded-2xl p-5 mb-8 grid sm:grid-cols-3 gap-4 text-center">
-        <div>
-          <p className="text-2xl font-bold text-green-500">+5 pts</p>
-          <p className="text-slate-400 text-sm mt-1">Vote "Oui, exacte"</p>
-        </div>
-        <div>
-          <p className="text-2xl font-bold text-amber-500">+1 pt</p>
-          <p className="text-slate-400 text-sm mt-1">Vote "Partiellement"</p>
-        </div>
-        <div>
-          <p className="text-2xl font-bold text-red-500">-5 pts</p>
-          <p className="text-slate-400 text-sm mt-1">Vote "Non, incorrecte"</p>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="space-y-3 animate-pulse">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-slate-100 rounded-2xl h-16" />
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {records.map((record, i) => (
-            <ReputationRow key={record.source} record={record} rank={i + 1} />
-          ))}
-          {records.length === 0 && (
-            <div className="text-center text-slate-400 py-16">
-              <p className="text-4xl mb-4">🗳️</p>
-              <p>Aucun vote enregistré pour l'instant.</p>
-              <p className="text-sm mt-2">
-                Les scores initiaux sont de 50/100. Votez depuis la page d'une ville pour améliorer
-                le système.
-              </p>
-            </div>
-          )}
+      {/* Stats globales */}
+      {!loading && records.length > 0 && (
+        <div style={{
+          display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginBottom: 28,
+        }}>
+          <StatCard icon="🗳️" label="Votes total" value={totalVotes.toString()} color="#6d28d9" bg="linear-gradient(135deg,#fdf4ff,#ede9fe)" border="#ddd6fe" />
+          <StatCard icon="🏆" label="Meilleure source" value={SOURCE_NAMES[bestSource?.source] ?? "—"} color="#047857" bg="linear-gradient(135deg,#f0fdf4,#d1fae5)" border="#a7f3d0" small />
+          <StatCard icon="📈" label="Score moyen" value={`${(records.reduce((s,r)=>s+r.score,0)/records.length).toFixed(1)}`} color="#0369a1" bg="linear-gradient(135deg,#f0f9ff,#e0f2fe)" border="#7dd3fc" />
         </div>
       )}
 
-      <p className="text-slate-300 text-xs text-center mt-8">
-        Score initial de chaque source : 50/100 · Les professionnels terrain ont un poids 1,5× dans
-        les votes · Limité à 1 vote par IP par ville par jour
+      {/* Barème */}
+      <div style={{
+        borderRadius: 16, overflow: "hidden", marginBottom: 28,
+        border: "2px solid transparent",
+        background: "linear-gradient(#fff,#fff) padding-box, linear-gradient(90deg,#10b981,#f59e0b,#ef4444) border-box",
+      }}>
+        <div style={{ background: "linear-gradient(90deg,#047857,#b45309,#991b1b)", padding: "11px 20px" }}>
+          <span style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>⚖️ Barème des votes</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", padding: "16px 20px", gap: 8 }}>
+          {[
+            { pts: "+3 pts", label: "Oui, exacte",    emoji: "✅", color: "#047857", bg: "#f0fdf4" },
+            { pts: "+1 pt",  label: "Partiellement",  emoji: "🤔", color: "#b45309", bg: "#fefce8" },
+            { pts: "−3 pts", label: "Non, incorrecte",emoji: "❌", color: "#991b1b", bg: "#fff1f2" },
+          ].map(({ pts, label, emoji, color, bg }) => (
+            <div key={pts} style={{ textAlign: "center", background: bg, borderRadius: 12, padding: "12px 8px" }}>
+              <div style={{ fontSize: 22 }}>{emoji}</div>
+              <div style={{ fontSize: 18, fontWeight: 800, color, marginTop: 4 }}>{pts}</div>
+              <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{label}</div>
+            </div>
+          ))}
+        </div>
+        <p style={{ fontSize: 11, color: "#94a3b8", textAlign: "center", paddingBottom: 12 }}>
+          Pros terrain (viticulteur, BTP…) = poids ×1,5 · 1 vote/IP/ville/jour
+        </p>
+      </div>
+
+      {/* Liste des sources */}
+      {loading ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {[...Array(6)].map((_, i) => (
+            <div key={i} style={{ height: 80, borderRadius: 16, background: "#f1f5f9" }} />
+          ))}
+        </div>
+      ) : records.length === 0 ? (
+        <div style={{ textAlign: "center", color: "#94a3b8", padding: "60px 0" }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>🗳️</div>
+          <p>Aucun vote enregistré pour l'instant.</p>
+          <p style={{ fontSize: 13, marginTop: 6 }}>Score initial de chaque source : 50/100</p>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {records.map((record, i) => (
+            <SourceRow key={record.source} record={record} rank={i + 1} />
+          ))}
+        </div>
+      )}
+
+      <p style={{ color: "#cbd5e1", fontSize: 11, textAlign: "center", marginTop: 24 }}>
+        Score initial : 50/100 · Mis à jour en temps réel après chaque vote
       </p>
     </div>
   );
 }
 
-function ReputationRow({
-  record,
-  rank,
-}: {
-  record: ReputationRecord;
-  rank: number;
+function StatCard({ icon, label, value, color, bg, border, small = false }: {
+  icon: string; label: string; value: string; color: string; bg: string; border: string; small?: boolean;
 }) {
-  const score = record.score;
-  const name = SOURCE_NAMES[record.source] ?? record.source;
-  const url = SOURCE_URLS[record.source] ?? "#";
-  const barColor =
-    score >= 70 ? "bg-green-400" : score >= 50 ? "bg-emerald-400" : "bg-red-400";
-  const scoreColor =
-    score >= 70 ? "text-green-500" : score >= 50 ? "text-emerald-500" : "text-red-500";
+  return (
+    <div style={{ background: bg, border: `1.5px solid ${border}`, borderRadius: 14, padding: "14px 16px", textAlign: "center" }}>
+      <div style={{ fontSize: 24 }}>{icon}</div>
+      <div style={{ fontSize: small ? 13 : 22, fontWeight: 700, color, marginTop: 4, lineHeight: 1.2 }}>{value}</div>
+      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 3 }}>{label}</div>
+    </div>
+  );
+}
 
-  const rankEmoji = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `${rank}.`;
+function SourceRow({ record, rank }: { record: ReputationRecord; rank: number }) {
+  const score  = record.score;
+  const name   = SOURCE_NAMES[record.source] ?? record.source;
+  const flag   = SOURCE_FLAGS[record.source] ?? "🌐";
+  const rankLabel = RANK_EMOJI[rank - 1] ?? `${rank}.`;
+  const total  = record.nb_votes;
+
+  const pctOk      = total > 0 ? Math.round(record.nb_correct   / total * 100) : 0;
+  const pctPartial = total > 0 ? Math.round(record.nb_partial    / total * 100) : 0;
+  const pctBad     = total > 0 ? Math.round(record.nb_incorrect  / total * 100) : 0;
 
   return (
-    <div className="bg-white border border-slate-100 shadow-sm rounded-2xl p-5 hover:bg-slate-50 transition-colors">
-      <div className="flex items-center gap-4">
-        <span className="text-lg font-bold text-slate-500 w-8 flex-shrink-0">{rankEmoji}</span>
+    <div style={{
+      background: scoreBg(score),
+      border: `1.5px solid ${scoreBorder(score)}`,
+      borderRadius: 16,
+      padding: "16px 18px",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <span style={{ fontSize: 20, flexShrink: 0 }}>{rankLabel}</span>
+        <span style={{ fontSize: 18 }}>{flag}</span>
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-2">
-            <a
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-slate-700 font-medium hover:text-emerald-500 transition-colors truncate"
-            >
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontWeight: 600, color: "#1e293b", fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {name}
-            </a>
-            <span className={`font-bold text-xl ml-4 flex-shrink-0 ${scoreColor}`}>
-              {score.toFixed(1)}%
+            </span>
+            <span style={{ fontWeight: 800, fontSize: 20, color: scoreColor(score), flexShrink: 0, marginLeft: 12 }}>
+              {score.toFixed(1)}
             </span>
           </div>
-          <div className="w-full bg-slate-100 rounded-full h-2">
-            <div
-              className={`h-2 rounded-full transition-all ${barColor}`}
-              style={{ width: `${score}%` }}
-            />
+
+          {/* Barre de score */}
+          <div style={{ width: "100%", background: "rgba(255,255,255,0.6)", borderRadius: 8, height: 8, marginBottom: total > 0 ? 10 : 0 }}>
+            <div style={{
+              width: `${score}%`, height: "100%", borderRadius: 8,
+              background: scoreGradient(score), transition: "width 0.5s ease",
+            }} />
           </div>
+
+          {/* Détail votes */}
+          {total > 0 && (
+            <>
+              {/* Barre tricolore */}
+              <div style={{ display: "flex", height: 4, borderRadius: 4, overflow: "hidden", marginBottom: 8 }}>
+                <div style={{ width: `${pctOk}%`,      background: "#10b981" }} />
+                <div style={{ width: `${pctPartial}%`, background: "#f59e0b" }} />
+                <div style={{ width: `${pctBad}%`,     background: "#ef4444" }} />
+              </div>
+              <div style={{ display: "flex", gap: 12, fontSize: 12 }}>
+                <span style={{ color: "#64748b" }}>
+                  {total} vote{total > 1 ? "s" : ""}
+                </span>
+                <span style={{ color: "#047857" }}>✓ {record.nb_correct} ({pctOk}%)</span>
+                <span style={{ color: "#b45309" }}>~ {record.nb_partial} ({pctPartial}%)</span>
+                <span style={{ color: "#991b1b" }}>✗ {record.nb_incorrect} ({pctBad}%)</span>
+              </div>
+            </>
+          )}
+
+          {total === 0 && (
+            <span style={{ fontSize: 12, color: "#94a3b8" }}>Aucun vote — score initial 50</span>
+          )}
         </div>
       </div>
-
-      {record.nb_votes > 0 && (
-        <div className="flex gap-4 mt-3 ml-12 text-xs text-slate-400">
-          <span>{record.nb_votes} vote{record.nb_votes > 1 ? "s" : ""}</span>
-          <span className="text-green-500">✓ {record.nb_correct} corrects</span>
-          <span className="text-amber-500">~ {record.nb_partial} partiels</span>
-          <span className="text-red-500">✗ {record.nb_incorrect} incorrects</span>
-        </div>
-      )}
     </div>
   );
 }
