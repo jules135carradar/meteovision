@@ -125,6 +125,9 @@ export interface AggregatedWeather {
   viticulture: ViticultureIndicators;
   historicalPrecip: { date: string; precipitation: number }[];
   yesterdaySlots: YesterdaySlot[];
+  winklerIndex: number;
+  soilTemperature: number | null;
+  soilMoisture: number | null;
   fetchedAt: string;
 }
 

@@ -84,10 +84,29 @@ function ProCard({ icon, title, children }: { icon: string; title: string; child
   );
 }
 
+function winklerRegion(gdd: number): string {
+  if (gdd < 1111) return "Région I — Très frais";
+  if (gdd < 1389) return "Région II — Frais";
+  if (gdd < 1667) return "Région III — Tempéré";
+  if (gdd < 1944) return "Région IV — Chaud";
+  return "Région V — Très chaud";
+}
+
 function ViticulteurPanel({ weather }: { weather: AggregatedWeather }) {
   const v = weather.viticulture;
+  const winkler = weather.winklerIndex;
+  const today = new Date();
+  const inSeason = today.getMonth() >= 3 && today.getMonth() <= 9; // avril-oct
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      {inSeason && winkler > 0 && (
+        <ProCard icon="🌡️" title="Indice de Winkler (GDD base 10°C)">
+          <p className="text-slate-800 text-2xl font-bold">{winkler} °J</p>
+          <p className="text-slate-400 text-xs mt-1">{winklerRegion(winkler)}</p>
+          <p className="text-slate-300 text-xs mt-1">Cumul depuis le 1er avril</p>
+        </ProCard>
+      )}
       <ProCard icon="🥶" title="Risque gel">
         <RiskBadge
           level={v.frostRiskLevel}
@@ -137,6 +156,35 @@ function ViticulteurPanel({ weather }: { weather: AggregatedWeather }) {
   );
 }
 
+function SoilCards({ weather }: { weather: AggregatedWeather }) {
+  const { soilTemperature, soilMoisture } = weather;
+  if (soilTemperature === null && soilMoisture === null) return null;
+  return (
+    <>
+      {soilTemperature !== null && (
+        <ProCard icon="🌍" title="Température du sol (0 cm)">
+          <p className="text-slate-800 text-2xl font-bold">{soilTemperature}°C</p>
+          <p className="text-slate-400 text-xs mt-1">
+            {soilTemperature < 5 ? "⚠️ Trop froid — végétation ralentie" :
+             soilTemperature < 10 ? "◐ Germination lente" :
+             soilTemperature < 25 ? "✓ Favorable" : "⚠️ Stress thermique"}
+          </p>
+        </ProCard>
+      )}
+      {soilMoisture !== null && (
+        <ProCard icon="💧" title="Humidité du sol (0-1 cm)">
+          <p className="text-slate-800 text-2xl font-bold">{soilMoisture}%</p>
+          <p className="text-slate-400 text-xs mt-1">
+            {soilMoisture < 20 ? "⚠️ Sol sec — irrigation recommandée" :
+             soilMoisture < 40 ? "◐ Sol légèrement sec" :
+             soilMoisture < 70 ? "✓ Bonne portance" : "⚠️ Sol saturé — risque tassement"}
+          </p>
+        </ProCard>
+      )}
+    </>
+  );
+}
+
 function AgriculteurPanel({ weather }: { weather: AggregatedWeather }) {
   const v = weather.viticulture;
   const windOkForTreatment = weather.windSpeed < 20;
@@ -144,6 +192,7 @@ function AgriculteurPanel({ weather }: { weather: AggregatedWeather }) {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <SoilCards weather={weather} />
       <ProCard icon="🥶" title="Risque gel">
         <RiskBadge
           level={v.frostRiskLevel}
@@ -345,6 +394,7 @@ function GrandesCulturesPanel({ weather }: { weather: AggregatedWeather }) {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <SoilCards weather={weather} />
       <ProCard icon="🌡️" title="Degrés-jours 7j (base 6°C)">
         <p className="text-slate-800 text-2xl font-bold">{ddj.toFixed(0)} °J</p>
         <p className="text-slate-400 text-xs mt-1">Cumul thermique à venir</p>

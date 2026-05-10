@@ -62,6 +62,51 @@ async function fetchYesterdaySlots(lat: number, lon: number): Promise<YesterdayS
   } catch { return []; }
 }
 
+async function fetchWinklerIndex(lat: number, lon: number): Promise<number> {
+  try {
+    const today = new Date();
+    const year  = today.getFullYear();
+    const april1 = new Date(year, 3, 1);
+    if (today < april1) return 0;
+    const oct31  = new Date(year, 10, 1);
+    const endDate = today < oct31 ? today : oct31;
+    const fmt = (d: Date) => d.toISOString().slice(0, 10);
+    const start = fmt(april1);
+    const end   = fmt(new Date(endDate.getTime() - 86400000));
+    if (start >= end) return 0;
+    const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${start}&end_date=${end}&daily=temperature_2m_max,temperature_2m_min&timezone=auto`;
+    const res = await fetch(url, { next: { revalidate: 86400 } });
+    if (!res.ok) return 0;
+    const data = await res.json();
+    const tmax: (number | null)[] = data.daily?.temperature_2m_max ?? [];
+    const tmin: (number | null)[] = data.daily?.temperature_2m_min ?? [];
+    let gdd = 0;
+    for (let i = 0; i < tmax.length; i++) {
+      const mx = tmax[i], mn = tmin[i];
+      if (mx !== null && mn !== null) gdd += Math.max(0, (mx + mn) / 2 - 10);
+    }
+    return Math.round(gdd);
+  } catch { return 0; }
+}
+
+async function fetchSoilData(lat: number, lon: number): Promise<{ soilTemperature: number | null; soilMoisture: number | null }> {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=soil_temperature_0cm,soil_moisture_0_to_1cm&forecast_days=1&timezone=auto`;
+    const res = await fetch(url, { next: { revalidate: 3600 } });
+    if (!res.ok) return { soilTemperature: null, soilMoisture: null };
+    const data  = await res.json();
+    const hour  = new Date().getHours();
+    const temps: (number | null)[]    = data.hourly?.soil_temperature_0cm    ?? [];
+    const moisture: (number | null)[] = data.hourly?.soil_moisture_0_to_1cm  ?? [];
+    const soilTemp = temps[hour] ?? null;
+    const raw = moisture[hour];
+    return {
+      soilTemperature: soilTemp !== null ? Math.round(soilTemp * 10) / 10 : null,
+      soilMoisture:    raw !== null && raw !== undefined ? Math.round((raw as number) * 100) : null,
+    };
+  } catch { return { soilTemperature: null, soilMoisture: null }; }
+}
+
 async function fetchHistoricalPrecip(lat: number, lon: number): Promise<{ date: string; precipitation: number }[]> {
   try {
     const today = new Date();
@@ -103,7 +148,7 @@ export async function GET(request: NextRequest) {
   const reputations = await getReputations();
 
   // Interroger toutes les sources en parallèle
-  const [ecmwf, gfs, icon, mf, ukmo, gem, yrno, wttr, owm, wapi, histResult, slotsResult] = await Promise.allSettled([
+  const [ecmwf, gfs, icon, mf, ukmo, gem, yrno, wttr, owm, wapi, histResult, slotsResult, winklerResult, soilResult] = await Promise.allSettled([
     fetchOpenMeteoECMWF(lat, lon, reputations["open-meteo-ecmwf"] ?? 50),
     fetchOpenMeteoGFS(lat, lon, reputations["open-meteo-gfs"] ?? 50),
     fetchOpenMeteoICON(lat, lon, reputations["open-meteo-icon"] ?? 50),
@@ -116,10 +161,14 @@ export async function GET(request: NextRequest) {
     fetchWeatherAPI(lat, lon, reputations["weatherapi"] ?? 50),
     fetchHistoricalPrecip(lat, lon),
     fetchYesterdaySlots(lat, lon),
+    fetchWinklerIndex(lat, lon),
+    fetchSoilData(lat, lon),
   ]);
 
-  const historicalPrecip = histResult.status === "fulfilled" ? histResult.value : [];
-  const yesterdaySlots   = slotsResult.status === "fulfilled" ? slotsResult.value : [];
+  const historicalPrecip = histResult.status    === "fulfilled" ? histResult.value    : [];
+  const yesterdaySlots   = slotsResult.status   === "fulfilled" ? slotsResult.value   : [];
+  const winklerIndex     = winklerResult.status  === "fulfilled" ? winklerResult.value  : 0;
+  const soilData         = soilResult.status     === "fulfilled" ? soilResult.value     : { soilTemperature: null, soilMoisture: null };
 
   const sources = [ecmwf, gfs, icon, mf, ukmo, gem, yrno, wttr, owm, wapi]
     .map((result) => {
@@ -143,7 +192,7 @@ export async function GET(request: NextRequest) {
 
   const aggregated = aggregate(location, activeSources as NonNullable<typeof activeSources[0]>[]);
 
-  return NextResponse.json({ ...aggregated, historicalPrecip, yesterdaySlots }, {
+  return NextResponse.json({ ...aggregated, historicalPrecip, yesterdaySlots, winklerIndex, ...soilData }, {
     headers: {
       "Cache-Control": "public, max-age=600, stale-while-revalidate=1200",
     },

@@ -306,6 +306,9 @@ export function aggregate(
     hourly: aggregateHourly(sources),
     historicalPrecip: [],
     yesterdaySlots: [],
+    winklerIndex: 0,
+    soilTemperature: null,
+    soilMoisture: null,
     fetchedAt: new Date().toISOString(),
   };
 
