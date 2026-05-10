@@ -2,73 +2,74 @@
 
 import { useState, useEffect } from "react";
 
-interface Suggestion {
+interface AlertDef {
   key: "gel" | "vent" | "pluie" | "humidite";
   icon: string;
   label: string;
-  value: number;
+  defaultValue: number;
   unit: string;
-  below?: boolean; // true = alerte si EN DESSOUS du seuil
+  below: boolean;
+  description: string;
 }
 
-const SUGGESTIONS: Record<string, Suggestion[]> = {
+const ALERTS_BY_METIER: Record<string, AlertDef[]> = {
   viticulteur: [
-    { key: "gel",      icon: "🥶", label: "Gel",            value: 2,  unit: "°C",   below: true },
-    { key: "vent",     icon: "💨", label: "Vent traitement", value: 15, unit: "km/h" },
-    { key: "pluie",    icon: "🌧️", label: "Pluie",          value: 3,  unit: "mm"   },
-    { key: "humidite", icon: "🦠", label: "Mildiou",         value: 80, unit: "%"    },
+    { key: "gel",      icon: "🥶", label: "Gel",     defaultValue: 2,  unit: "°C",   below: true,  description: "Alerte si T° descend sous" },
+    { key: "vent",     icon: "💨", label: "Vent",     defaultValue: 15, unit: "km/h", below: false, description: "Alerte si vent dépasse" },
+    { key: "pluie",    icon: "🌧️", label: "Pluie",    defaultValue: 3,  unit: "mm",   below: false, description: "Alerte si pluie dépasse" },
+    { key: "humidite", icon: "🦠", label: "Mildiou",  defaultValue: 80, unit: "%",    below: false, description: "Alerte si humidité dépasse" },
   ],
   agriculteur: [
-    { key: "gel",   icon: "🥶", label: "Gel",        value: 0,  unit: "°C",   below: true },
-    { key: "vent",  icon: "💨", label: "Vent",        value: 30, unit: "km/h" },
-    { key: "pluie", icon: "🌧️", label: "Pluie forte", value: 10, unit: "mm"   },
+    { key: "gel",   icon: "🥶", label: "Gel",   defaultValue: 0,  unit: "°C",   below: true,  description: "Alerte si T° descend sous" },
+    { key: "vent",  icon: "💨", label: "Vent",  defaultValue: 30, unit: "km/h", below: false, description: "Alerte si vent dépasse" },
+    { key: "pluie", icon: "🌧️", label: "Pluie", defaultValue: 10, unit: "mm",   below: false, description: "Alerte si pluie dépasse" },
   ],
   grandes_cultures: [
-    { key: "gel",   icon: "🥶", label: "Gel tardif",  value: 0,  unit: "°C",   below: true },
-    { key: "vent",  icon: "💨", label: "Vent récolte", value: 25, unit: "km/h" },
-    { key: "pluie", icon: "🌧️", label: "Pluie",        value: 5,  unit: "mm"   },
+    { key: "gel",   icon: "🥶", label: "Gel",   defaultValue: 0,  unit: "°C",   below: true,  description: "Alerte si T° descend sous" },
+    { key: "vent",  icon: "💨", label: "Vent",  defaultValue: 25, unit: "km/h", below: false, description: "Alerte si vent dépasse" },
+    { key: "pluie", icon: "🌧️", label: "Pluie", defaultValue: 5,  unit: "mm",   below: false, description: "Alerte si pluie dépasse" },
   ],
   apiculture: [
-    { key: "gel",      icon: "🥶", label: "Gel",        value: 4,  unit: "°C",   below: true },
-    { key: "vent",     icon: "💨", label: "Vent fort",   value: 20, unit: "km/h" },
-    { key: "pluie",    icon: "🌧️", label: "Pluie",       value: 2,  unit: "mm"   },
-    { key: "humidite", icon: "💧", label: "Humidité élevée", value: 85, unit: "%"   },
+    { key: "gel",      icon: "🥶", label: "Gel",      defaultValue: 4,  unit: "°C",   below: true,  description: "Alerte si T° descend sous" },
+    { key: "vent",     icon: "💨", label: "Vent",      defaultValue: 20, unit: "km/h", below: false, description: "Alerte si vent dépasse" },
+    { key: "pluie",    icon: "🌧️", label: "Pluie",     defaultValue: 2,  unit: "mm",   below: false, description: "Alerte si pluie dépasse" },
+    { key: "humidite", icon: "💧", label: "Humidité",  defaultValue: 85, unit: "%",    below: false, description: "Alerte si humidité dépasse" },
   ],
   forestier: [
-    { key: "vent",  icon: "💨", label: "Tempête",     value: 60, unit: "km/h" },
-    { key: "pluie", icon: "🌧️", label: "Pluie forte", value: 15, unit: "mm"   },
-    { key: "gel",   icon: "🥶", label: "Gel",          value: 0,  unit: "°C",   below: true },
+    { key: "vent",  icon: "💨", label: "Tempête",      defaultValue: 60, unit: "km/h", below: false, description: "Alerte si vent dépasse" },
+    { key: "pluie", icon: "🌧️", label: "Pluie forte",  defaultValue: 15, unit: "mm",   below: false, description: "Alerte si pluie dépasse" },
+    { key: "gel",   icon: "🥶", label: "Gel",          defaultValue: 0,  unit: "°C",   below: true,  description: "Alerte si T° descend sous" },
   ],
   btp: [
-    { key: "vent",  icon: "💨", label: "Vent grue",    value: 45, unit: "km/h" },
-    { key: "pluie", icon: "🌧️", label: "Pluie béton",  value: 2,  unit: "mm"   },
-    { key: "gel",   icon: "🥶", label: "Gel béton",    value: 2,  unit: "°C",   below: true },
+    { key: "vent",  icon: "💨", label: "Vent grue",   defaultValue: 45, unit: "km/h", below: false, description: "Alerte si vent dépasse" },
+    { key: "pluie", icon: "🌧️", label: "Pluie béton", defaultValue: 2,  unit: "mm",   below: false, description: "Alerte si pluie dépasse" },
+    { key: "gel",   icon: "🥶", label: "Gel béton",   defaultValue: 2,  unit: "°C",   below: true,  description: "Alerte si T° descend sous" },
   ],
   sport_outdoor: [
-    { key: "vent",  icon: "💨", label: "Vent fort",    value: 50, unit: "km/h" },
-    { key: "pluie", icon: "🌧️", label: "Pluie",        value: 5,  unit: "mm"   },
-    { key: "gel",   icon: "🥶", label: "Gel",          value: 0,  unit: "°C",   below: true },
+    { key: "vent",  icon: "💨", label: "Vent fort", defaultValue: 50, unit: "km/h", below: false, description: "Alerte si vent dépasse" },
+    { key: "pluie", icon: "🌧️", label: "Pluie",     defaultValue: 5,  unit: "mm",   below: false, description: "Alerte si pluie dépasse" },
+    { key: "gel",   icon: "🥶", label: "Gel",       defaultValue: 0,  unit: "°C",   below: true,  description: "Alerte si T° descend sous" },
   ],
   transport: [
-    { key: "gel",  icon: "🥶", label: "Verglas route", value: 2,  unit: "°C",   below: true },
-    { key: "vent", icon: "💨", label: "Vent violent",   value: 70, unit: "km/h" },
+    { key: "gel",  icon: "🥶", label: "Verglas",     defaultValue: 2,  unit: "°C",   below: true,  description: "Alerte si T° descend sous" },
+    { key: "vent", icon: "💨", label: "Vent violent", defaultValue: 70, unit: "km/h", below: false, description: "Alerte si vent dépasse" },
   ],
   evenementiel: [
-    { key: "pluie", icon: "🌧️", label: "Pluie événement", value: 1,  unit: "mm"   },
-    { key: "vent",  icon: "💨", label: "Vent fort",        value: 40, unit: "km/h" },
+    { key: "pluie", icon: "🌧️", label: "Pluie", defaultValue: 1,  unit: "mm",   below: false, description: "Alerte si pluie dépasse" },
+    { key: "vent",  icon: "💨", label: "Vent",  defaultValue: 40, unit: "km/h", below: false, description: "Alerte si vent dépasse" },
   ],
   nautisme: [
-    { key: "vent",  icon: "💨", label: "Vent navigation", value: 30, unit: "km/h" },
-    { key: "pluie", icon: "🌧️", label: "Pluie",           value: 5,  unit: "mm"   },
+    { key: "vent",  icon: "💨", label: "Vent",  defaultValue: 30, unit: "km/h", below: false, description: "Alerte si vent dépasse" },
+    { key: "pluie", icon: "🌧️", label: "Pluie", defaultValue: 5,  unit: "mm",   below: false, description: "Alerte si pluie dépasse" },
   ],
   pompier: [
-    { key: "vent",  icon: "💨", label: "Vent fort",     value: 50, unit: "km/h" },
-    { key: "pluie", icon: "🌧️", label: "Pluie forte",   value: 20, unit: "mm"   },
+    { key: "vent",  icon: "💨", label: "Vent fort",   defaultValue: 50, unit: "km/h", below: false, description: "Alerte si vent dépasse" },
+    { key: "pluie", icon: "🌧️", label: "Pluie forte", defaultValue: 20, unit: "mm",   below: false, description: "Alerte si pluie dépasse" },
   ],
   grand_public: [
-    { key: "gel",   icon: "🥶", label: "Gel",          value: 0,  unit: "°C",   below: true },
-    { key: "vent",  icon: "💨", label: "Vent fort",     value: 50, unit: "km/h" },
-    { key: "pluie", icon: "🌧️", label: "Grosse pluie", value: 10, unit: "mm"   },
+    { key: "gel",   icon: "🥶", label: "Gel",         defaultValue: 0,  unit: "°C",   below: true,  description: "Alerte si T° descend sous" },
+    { key: "vent",  icon: "💨", label: "Vent fort",    defaultValue: 50, unit: "km/h", below: false, description: "Alerte si vent dépasse" },
+    { key: "pluie", icon: "🌧️", label: "Grosse pluie", defaultValue: 10, unit: "mm",   below: false, description: "Alerte si pluie dépasse" },
   ],
 };
 
@@ -91,13 +92,16 @@ interface Props {
 }
 
 export default function PushAlerts({ city, lat, lon, metier }: Props) {
-  const [selected, setSelected]   = useState<Set<string>>(new Set());
-  const [subscribed, setSubscribed] = useState(false);
-  const [loading, setLoading]     = useState(false);
-  const [status, setStatus]       = useState<"idle" | "success" | "error">("idle");
-  const [supported, setSupported] = useState(true);
+  const alerts = ALERTS_BY_METIER[metier] ?? ALERTS_BY_METIER.grand_public;
 
-  const suggestions = SUGGESTIONS[metier] ?? SUGGESTIONS.grand_public;
+  const [active, setActive]       = useState<Record<string, boolean>>({});
+  const [values, setValues]       = useState<Record<string, string>>(() =>
+    Object.fromEntries(alerts.map((a) => [a.key, String(a.defaultValue)]))
+  );
+  const [subscribed, setSubscribed] = useState(false);
+  const [loading, setLoading]       = useState(false);
+  const [status, setStatus]         = useState<"idle" | "success" | "error">("idle");
+  const [supported, setSupported]   = useState(true);
 
   useEffect(() => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
@@ -111,17 +115,20 @@ export default function PushAlerts({ city, lat, lon, metier }: Props) {
     });
   }, []);
 
-  function toggleSuggestion(key: string) {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.has(key) ? next.delete(key) : next.add(key);
-      return next;
-    });
+  // Réinitialiser les valeurs quand le métier change
+  useEffect(() => {
+    setValues(Object.fromEntries(alerts.map((a) => [a.key, String(a.defaultValue)])));
+    setActive({});
+  }, [metier]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function toggle(key: string) {
+    setActive((prev) => ({ ...prev, [key]: !prev[key] }));
     setStatus("idle");
   }
 
   async function subscribe() {
-    if (selected.size === 0) { setStatus("error"); return; }
+    const hasActive = Object.values(active).some(Boolean);
+    if (!hasActive) { setStatus("error"); return; }
     setLoading(true);
     try {
       const reg = await navigator.serviceWorker.ready;
@@ -134,8 +141,8 @@ export default function PushAlerts({ city, lat, lon, metier }: Props) {
       });
 
       const thresholds: Record<string, number> = {};
-      for (const s of suggestions) {
-        if (selected.has(s.key)) thresholds[s.key] = s.value;
+      for (const a of alerts) {
+        if (active[a.key]) thresholds[a.key] = parseFloat(values[a.key]) || a.defaultValue;
       }
 
       const res = await fetch("/api/push/subscribe", {
@@ -168,7 +175,7 @@ export default function PushAlerts({ city, lat, lon, metier }: Props) {
         });
       }
       setSubscribed(false);
-      setSelected(new Set());
+      setActive({});
       setStatus("idle");
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
@@ -197,42 +204,87 @@ export default function PushAlerts({ city, lat, lon, metier }: Props) {
         </div>
       ) : (
         <div>
-          <p style={{ margin: "0 0 10px", fontSize: 12, color: "#64748b" }}>Sélectionnez les alertes qui vous intéressent :</p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
-            {suggestions.map((s) => {
-              const isOn = selected.has(s.key);
+          <p style={{ margin: "0 0 10px", fontSize: 12, color: "#64748b" }}>
+            Activez et personnalisez vos seuils :
+          </p>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
+            {alerts.map((a) => {
+              const isOn = !!active[a.key];
               return (
-                <button
-                  key={s.key}
-                  onClick={() => toggleSuggestion(s.key)}
-                  style={{
-                    padding: "7px 12px", borderRadius: 20, border: `1.5px solid ${isOn ? "#059669" : "#e2e8f0"}`,
-                    background: isOn ? "#f0fdf4" : "#f8fafc",
-                    color: isOn ? "#059669" : "#64748b",
-                    fontSize: 13, fontWeight: isOn ? 700 : 400,
-                    cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
-                    transition: "all 0.15s",
-                  }}
-                >
-                  {s.icon} {s.label} {s.below ? "<" : ">"} {s.value}{s.unit}
-                  {isOn && <span style={{ marginLeft: 2 }}>✓</span>}
-                </button>
+                <div key={a.key} style={{
+                  borderRadius: 12,
+                  border: `1.5px solid ${isOn ? "#059669" : "#e2e8f0"}`,
+                  background: isOn ? "#f0fdf4" : "#f8fafc",
+                  overflow: "hidden",
+                  transition: "all 0.15s",
+                }}>
+                  {/* Ligne principale — clic pour activer */}
+                  <button
+                    onClick={() => toggle(a.key)}
+                    style={{
+                      width: "100%", padding: "10px 14px",
+                      background: "none", border: "none", cursor: "pointer",
+                      display: "flex", alignItems: "center", gap: 10, textAlign: "left",
+                    }}
+                  >
+                    <span style={{ fontSize: 20 }}>{a.icon}</span>
+                    <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: isOn ? "#059669" : "#475569" }}>
+                      {a.label}
+                    </span>
+                    <div style={{
+                      width: 36, height: 20, borderRadius: 10,
+                      background: isOn ? "#059669" : "#cbd5e1",
+                      position: "relative", transition: "background 0.2s", flexShrink: 0,
+                    }}>
+                      <div style={{
+                        position: "absolute", top: 2,
+                        left: isOn ? 18 : 2,
+                        width: 16, height: 16, borderRadius: "50%",
+                        background: "#fff", transition: "left 0.2s",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                      }} />
+                    </div>
+                  </button>
+
+                  {/* Champ de valeur — visible uniquement si actif */}
+                  {isOn && (
+                    <div style={{ padding: "0 14px 12px", display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 12, color: "#64748b" }}>{a.description}</span>
+                      <input
+                        type="number"
+                        value={values[a.key]}
+                        onChange={(e) => setValues((v) => ({ ...v, [a.key]: e.target.value }))}
+                        style={{
+                          width: 64, padding: "5px 8px", borderRadius: 8,
+                          border: "1.5px solid #86efac", fontSize: 16,
+                          textAlign: "center", outline: "none", background: "#fff",
+                          fontWeight: 700, color: "#059669",
+                        }}
+                      />
+                      <span style={{ fontSize: 12, color: "#059669", fontWeight: 600 }}>{a.unit}</span>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
 
           {status === "error" && (
-            <p style={{ fontSize: 12, color: "#ef4444", margin: "0 0 8px" }}>Sélectionnez au moins une alerte.</p>
+            <p style={{ fontSize: 12, color: "#ef4444", margin: "0 0 8px" }}>Activez au moins une alerte.</p>
           )}
 
           <button
             onClick={subscribe}
-            disabled={loading || selected.size === 0}
+            disabled={loading || !Object.values(active).some(Boolean)}
             style={{
               width: "100%", padding: "11px", borderRadius: 12, border: "none",
-              background: selected.size === 0 ? "#e2e8f0" : "linear-gradient(90deg, #059669, #0284c7)",
-              color: selected.size === 0 ? "#94a3b8" : "#fff",
-              fontSize: 14, fontWeight: 700, cursor: selected.size === 0 ? "not-allowed" : "pointer",
+              background: Object.values(active).some(Boolean)
+                ? "linear-gradient(90deg, #059669, #0284c7)"
+                : "#e2e8f0",
+              color: Object.values(active).some(Boolean) ? "#fff" : "#94a3b8",
+              fontSize: 14, fontWeight: 700,
+              cursor: Object.values(active).some(Boolean) ? "pointer" : "not-allowed",
             }}
           >
             {loading ? "Activation..." : `🔔 M'alerter sur ${city}`}
