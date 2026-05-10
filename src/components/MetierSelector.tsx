@@ -1,14 +1,18 @@
 "use client";
 
 const METIERS = [
-  { id: "grand_public",  label: "Grand public",  emoji: "👥" },
-  { id: "viticulteur",   label: "Viticulteur",   emoji: "🍇" },
-  { id: "agriculteur",   label: "Agriculteur",   emoji: "🌾" },
-  { id: "btp",           label: "BTP",           emoji: "🏗️" },
-  { id: "transport",     label: "Transport",     emoji: "🚛" },
-  { id: "evenementiel",  label: "Événementiel",  emoji: "🎪" },
-  { id: "nautisme",      label: "Nautisme",      emoji: "⛵" },
-  { id: "pompier",       label: "Pompiers",      emoji: "🚒" },
+  { id: "grand_public",    label: "Grand public",    emoji: "👥" },
+  { id: "viticulteur",     label: "Viticulteur",     emoji: "🍇" },
+  { id: "agriculteur",     label: "Agriculteur",     emoji: "🌾" },
+  { id: "grandes_cultures",label: "Grandes cultures",emoji: "🌱" },
+  { id: "apiculture",      label: "Apiculture",      emoji: "🐝" },
+  { id: "forestier",       label: "Forestier",       emoji: "🌲" },
+  { id: "sport_outdoor",   label: "Sport outdoor",   emoji: "🏃" },
+  { id: "btp",             label: "BTP",             emoji: "🏗️" },
+  { id: "transport",       label: "Transport",       emoji: "🚛" },
+  { id: "evenementiel",    label: "Événementiel",    emoji: "🎪" },
+  { id: "nautisme",        label: "Nautisme",        emoji: "⛵" },
+  { id: "pompier",         label: "Pompiers",        emoji: "🚒" },
 ];
 
 interface Props { value: string; onChange: (m: string) => void; }

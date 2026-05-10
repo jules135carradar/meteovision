@@ -16,26 +16,34 @@ export default function ProModeIndicators({ weather, metier }: Props) {
       </div>
       <div style={{ padding: 20 }}>
 
-        {metier === "viticulteur" && <ViticulteurPanel weather={weather} />}
-        {metier === "agriculteur" && <AgriculteurPanel weather={weather} />}
-        {metier === "btp" && <BTPPanel weather={weather} />}
-        {metier === "transport" && <TransportPanel weather={weather} />}
-        {metier === "evenementiel" && <EvenementielPanel weather={weather} />}
-        {metier === "nautisme" && <NautismePanel weather={weather} />}
-        {metier === "pompier" && <PompierPanel weather={weather} />}
+        {metier === "viticulteur"      && <ViticulteurPanel weather={weather} />}
+        {metier === "agriculteur"      && <AgriculteurPanel weather={weather} />}
+        {metier === "grandes_cultures" && <GrandesCulturesPanel weather={weather} />}
+        {metier === "apiculture"       && <ApiculturePanel weather={weather} />}
+        {metier === "forestier"        && <ForestierPanel weather={weather} />}
+        {metier === "sport_outdoor"    && <SportOutdoorPanel weather={weather} />}
+        {metier === "btp"              && <BTPPanel weather={weather} />}
+        {metier === "transport"        && <TransportPanel weather={weather} />}
+        {metier === "evenementiel"     && <EvenementielPanel weather={weather} />}
+        {metier === "nautisme"         && <NautismePanel weather={weather} />}
+        {metier === "pompier"          && <PompierPanel weather={weather} />}
       </div>
     </div>
   );
 }
 
 const METIER_LABELS: Record<string, string> = {
-  viticulteur: "Viticulteur / Arboriculteur",
-  agriculteur: "Agriculteur / Céréalier",
-  btp: "BTP / Construction",
-  transport: "Transport / Logistique",
-  evenementiel: "Événementiel",
-  nautisme: "Nautisme / Pêche",
-  pompier: "Pompiers / Sécurité civile",
+  viticulteur:      "Viticulteur / Arboriculteur",
+  agriculteur:      "Agriculteur / Maraîcher",
+  grandes_cultures: "Grandes cultures / Céréalier",
+  apiculture:       "Apiculture",
+  forestier:        "Forestier / Exploitation",
+  sport_outdoor:    "Sport outdoor / Randonnée",
+  btp:              "BTP / Construction",
+  transport:        "Transport / Logistique",
+  evenementiel:     "Événementiel",
+  nautisme:         "Nautisme / Pêche",
+  pompier:          "Pompiers / Sécurité civile",
 };
 
 function RiskBadge({ level, labels }: { level: string; labels: Record<string, string> }) {
@@ -310,6 +318,247 @@ function PompierPanel({ weather }: { weather: AggregatedWeather }) {
       </ProCard>
       <ProCard icon="🌡️" title="Température">
         <p className="text-slate-800 text-2xl font-bold">{Math.round(weather.temperature)}°C</p>
+      </ProCard>
+    </div>
+  );
+}
+
+function GrandesCulturesPanel({ weather }: { weather: AggregatedWeather }) {
+  const v = weather.viticulture;
+
+  // Degrés-jours de croissance (base 6°C) sur les 7 prochains jours
+  const ddj = weather.daily.reduce((sum, day) => {
+    const avg = (day.tempMax + day.tempMin) / 2;
+    return sum + Math.max(0, avg - 6);
+  }, 0);
+
+  // Bilan hydrique approximatif
+  const etpWeek = (v.etp ?? 0) * 7;
+  const deficit  = Math.max(0, etpWeek - v.rainCumul7d);
+  const deficitLevel = deficit < 5 ? "favorable" : deficit < 20 ? "modéré" : "élevé";
+
+  // Fenêtre récolte
+  const harvestOk = weather.temperature > 15 && weather.humidity < 70 && weather.precipitation < 0.5;
+
+  // Risque maladies fongiques (humide + chaud)
+  const fungalRisk = weather.humidity > 80 && weather.temperature > 15;
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <ProCard icon="🌡️" title="Degrés-jours 7j (base 6°C)">
+        <p className="text-slate-800 text-2xl font-bold">{ddj.toFixed(0)} °J</p>
+        <p className="text-slate-400 text-xs mt-1">Cumul thermique à venir</p>
+      </ProCard>
+      <ProCard icon="💧" title="Déficit hydrique 7j">
+        <p className="text-slate-800 text-2xl font-bold">{deficit.toFixed(0)} mm</p>
+        <RiskBadge
+          level={deficitLevel}
+          labels={{ favorable: "✓ Bilan OK", modéré: "◐ Léger déficit", élevé: "⚠️ Déficit important" }}
+        />
+      </ProCard>
+      <ProCard icon="🌾" title="Fenêtre récolte">
+        <RiskBadge
+          level={harvestOk ? "favorable" : "défavorable"}
+          labels={{ favorable: "Favorable ✓", défavorable: "Défavorable ✗" }}
+        />
+        <p className="text-slate-400 text-xs mt-2">T°={Math.round(weather.temperature)}°C · HR={Math.round(weather.humidity)}%</p>
+      </ProCard>
+      <ProCard icon="🦠" title="Risque fongique">
+        <RiskBadge
+          level={fungalRisk ? "élevé" : "faible"}
+          labels={{ faible: "Faible ✓", élevé: "Élevé ⚠️" }}
+        />
+        <p className="text-slate-400 text-xs mt-2">Humidité + chaleur favorisent les champignons</p>
+      </ProCard>
+      <ProCard icon="🥶" title="Risque gel">
+        <RiskBadge
+          level={v.frostRiskLevel}
+          labels={{ aucun: "Aucun", faible: "Faible", modéré: "Modéré ⚠️", élevé: "ÉLEVÉ 🚨" }}
+        />
+      </ProCard>
+      <ProCard icon="🌧️" title="Pluie cumulée 7j">
+        <p className="text-slate-800 text-2xl font-bold">{v.rainCumul7d} mm</p>
+        <p className="text-slate-400 text-xs mt-1">ETP estimée : {etpWeek.toFixed(0)} mm</p>
+      </ProCard>
+    </div>
+  );
+}
+
+function ApiculturePanel({ weather }: { weather: AggregatedWeather }) {
+  // Score conditions de butinage (0-4)
+  let score = 0;
+  if (weather.temperature > 12)    score++;
+  if (weather.temperature < 35)    score++;
+  if (weather.precipitation < 0.5) score++;
+  if (weather.windSpeed < 20)      score++;
+  const butinageLevel = score === 4 ? "favorable" : score >= 2 ? "modéré" : "défavorable";
+
+  const hiveStress = weather.temperature < 8 || weather.temperature > 38;
+  const fermentRisk = weather.humidity > 80;
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <ProCard icon="🐝" title="Conditions butinage">
+        <RiskBadge
+          level={butinageLevel}
+          labels={{ favorable: "Excellentes ✓", modéré: "Correctes ◐", défavorable: "Mauvaises ✗" }}
+        />
+        <p className="text-slate-400 text-xs mt-2">{score}/4 critères favorables</p>
+      </ProCard>
+      <ProCard icon="🌡️" title="Température ruche">
+        <p className="text-slate-800 text-2xl font-bold">{Math.round(weather.temperature)}°C</p>
+        <p className="text-slate-400 text-xs mt-1">
+          {hiveStress ? "⚠️ Stress colonie" : "✓ Zone de confort"}
+        </p>
+      </ProCard>
+      <ProCard icon="💨" title="Vent">
+        <p className="text-slate-800 text-2xl font-bold">{Math.round(weather.windSpeed)} km/h</p>
+        <p className="text-slate-400 text-xs mt-1">
+          {weather.windSpeed < 20 ? "✓ Butinage possible" : "✗ Abeilles à la ruche"}
+        </p>
+      </ProCard>
+      <ProCard icon="☀️" title="Ensoleillement (UV)">
+        <p className="text-slate-800 text-2xl font-bold">{weather.uvIndex.toFixed(1)}</p>
+        <p className="text-slate-400 text-xs mt-1">
+          {weather.uvIndex > 2 ? "✓ Activité favorisée" : "◐ Faible ensoleillement"}
+        </p>
+      </ProCard>
+      <ProCard icon="💧" title="Humidité / Miel">
+        <p className="text-slate-800 text-2xl font-bold">{Math.round(weather.humidity)}%</p>
+        <p className="text-slate-400 text-xs mt-1">
+          {fermentRisk ? "⚠️ Risque fermentation miel" : "✓ OK"}
+        </p>
+      </ProCard>
+      <ProCard icon="🌧️" title="Pluie">
+        <p className="text-slate-800 text-2xl font-bold">{weather.precipitation.toFixed(1)} mm</p>
+        <p className="text-slate-400 text-xs mt-1">
+          {weather.precipitation >= 0.5 ? "✗ Sortie impossible" : "✓ Sec"}
+        </p>
+      </ProCard>
+    </div>
+  );
+}
+
+function ForestierPanel({ weather }: { weather: AggregatedWeather }) {
+  const v = weather.viticulture;
+  const fireRisk = computeFireRisk(weather);
+
+  // Portance des sols selon pluie cumulée 7j
+  const portanceLevel =
+    v.rainCumul7d < 20 ? "favorable" :
+    v.rainCumul7d < 50 ? "modéré" : "élevé";
+
+  // Conditions d'abattage
+  const fellingOk = weather.windSpeed < 40;
+  const visOk = weather.visibility === null || weather.visibility > 2;
+
+  // Risque chablis (arbres déracinés par le vent)
+  const chabliRisk = weather.windSpeed > 60 ? "élevé" : weather.windSpeed > 40 ? "modéré" : "faible";
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <ProCard icon="🔥" title="Risque incendie">
+        <RiskBadge
+          level={fireRisk}
+          labels={{ aucun: "Nul", faible: "Faible", modéré: "Modéré ⚠️", élevé: "ÉLEVÉ 🚨" }}
+        />
+        <p className="text-slate-400 text-xs mt-2">T°={Math.round(weather.temperature)}°C · Hum.={Math.round(weather.humidity)}%</p>
+      </ProCard>
+      <ProCard icon="🚜" title="Portance des sols">
+        <RiskBadge
+          level={portanceLevel}
+          labels={{ favorable: "Carrossable ✓", modéré: "Limité ◐", élevé: "Impraticable ✗" }}
+        />
+        <p className="text-slate-400 text-xs mt-2">Pluie 7j : {v.rainCumul7d} mm</p>
+      </ProCard>
+      <ProCard icon="🌲" title="Conditions abattage">
+        <RiskBadge
+          level={fellingOk && visOk ? "favorable" : "élevé"}
+          labels={{ favorable: "Favorables ✓", élevé: "Déconseillé ✗" }}
+        />
+        <p className="text-slate-400 text-xs mt-2">Vent : {Math.round(weather.windSpeed)} km/h</p>
+      </ProCard>
+      <ProCard icon="🌀" title="Risque chablis">
+        <RiskBadge
+          level={chabliRisk}
+          labels={{ faible: "Faible", modéré: "Modéré ⚠️", élevé: "ÉLEVÉ 🚨" }}
+        />
+      </ProCard>
+      <ProCard icon="💧" title="Humidité végétation">
+        <p className="text-slate-800 text-2xl font-bold">{Math.round(weather.humidity)}%</p>
+        <p className="text-slate-400 text-xs mt-1">
+          {weather.humidity < 40 ? "⚠️ Végétation très sèche" : weather.humidity < 60 ? "◐ Sèche" : "✓ OK"}
+        </p>
+      </ProCard>
+      <ProCard icon="👁️" title="Visibilité">
+        <p className="text-slate-800 text-2xl font-bold">
+          {weather.visibility !== null ? `${weather.visibility.toFixed(1)} km` : "N/D"}
+        </p>
+        <p className="text-slate-400 text-xs mt-1">
+          {weather.visibility !== null && weather.visibility < 2 ? "⚠️ Mauvaise visibilité" : "✓ OK"}
+        </p>
+      </ProCard>
+    </div>
+  );
+}
+
+function SportOutdoorPanel({ weather }: { weather: AggregatedWeather }) {
+  // Indice de chaleur ressenti (simplifié)
+  const stormRisk = weather.weatherCode >= 95;
+  const rainRisk  = weather.precipitation >= 1;
+  const windRisk  = weather.windSpeed > 50;
+
+  const globalLevel =
+    stormRisk ? "élevé" :
+    (rainRisk && windRisk) ? "modéré" :
+    "favorable";
+
+  // UV protection
+  const uvLabel =
+    weather.uvIndex >= 8 ? "⚠️ Protection forte obligatoire" :
+    weather.uvIndex >= 5 ? "◐ Crème solaire recommandée" :
+    "✓ Faible";
+
+  // Visibilité trail
+  const visOk = weather.visibility === null || weather.visibility > 3;
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <ProCard icon="🏃" title="Conditions outdoor">
+        <RiskBadge
+          level={globalLevel}
+          labels={{ favorable: "Excellentes ✓", modéré: "Correctes ◐", élevé: "Dangereuses ✗" }}
+        />
+      </ProCard>
+      <ProCard icon="🌡️" title="Température ressentie">
+        <p className="text-slate-800 text-2xl font-bold">{Math.round(weather.feelsLike)}°C</p>
+        <p className="text-slate-400 text-xs mt-1">
+          {weather.feelsLike > 35 ? "⚠️ Coup de chaleur" : weather.feelsLike < 0 ? "⚠️ Hypothermie" : "✓ Confortable"}
+        </p>
+      </ProCard>
+      <ProCard icon="⛈️" title="Risque orage">
+        <RiskBadge
+          level={stormRisk ? "élevé" : "faible"}
+          labels={{ faible: "Faible ✓", élevé: "ORAGE — Rentrez ✗" }}
+        />
+      </ProCard>
+      <ProCard icon="☀️" title="Indice UV">
+        <p className="text-slate-800 text-2xl font-bold">{weather.uvIndex.toFixed(1)}</p>
+        <p className="text-slate-400 text-xs mt-1">{uvLabel}</p>
+      </ProCard>
+      <ProCard icon="👁️" title="Visibilité trail">
+        <p className="text-slate-800 text-2xl font-bold">
+          {weather.visibility !== null ? `${weather.visibility.toFixed(1)} km` : "N/D"}
+        </p>
+        <p className="text-slate-400 text-xs mt-1">
+          {!visOk ? "⚠️ Brouillard — balisage obligatoire" : "✓ Bonne visibilité"}
+        </p>
+      </ProCard>
+      <ProCard icon="💨" title="Vent">
+        <p className="text-slate-800 text-2xl font-bold">{Math.round(weather.windSpeed)} km/h</p>
+        <p className="text-slate-400 text-xs mt-1">
+          {weather.windSpeed > 60 ? "⚠️ Dangereux en altitude" : weather.windSpeed > 30 ? "◐ Effort accru" : "✓ OK"}
+        </p>
       </ProCard>
     </div>
   );
