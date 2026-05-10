@@ -46,6 +46,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </svg>
                 <span className="hidden sm:inline">Réputation</span>
               </Link>
+              <Link
+                href="/feedback"
+                className="text-slate-500 hover:text-emerald-500 text-sm font-medium transition-colors flex items-center gap-1.5 min-h-[44px] px-2"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span className="hidden sm:inline">Avis</span>
+              </Link>
             </div>
           </div>
         </nav>
