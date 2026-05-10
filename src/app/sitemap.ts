@@ -65,8 +65,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/feedback`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.4 },
   ];
 
-  const ville_pages: MetadataRoute.Sitemap = VILLES.map(({ slug, lat, lon }) => ({
-    url: `${BASE}/ville/${slug}?lat=${lat}&lon=${lon}&city=${encodeURIComponent(slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()))}`,
+  const ville_pages: MetadataRoute.Sitemap = VILLES.map(({ slug }) => ({
+    url: `${BASE}/ville/${slug}`,
     lastModified: new Date(),
     changeFrequency: "hourly" as const,
     priority: 0.9,
