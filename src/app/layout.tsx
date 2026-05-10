@@ -6,8 +6,28 @@ import ServiceWorkerInit from "@/components/ServiceWorkerInit";
 import InstallButton from "@/components/InstallButton";
 
 export const metadata: Metadata = {
-  title: "MétéoVision — Prévisions consolidées de 5+ sources",
-  description: "Application météo agrégée : 5 sources indépendantes, synthèse IA Claude, mode professionnel.",
+  title: "MétéoVision — Météo agrégée 5 sources, mode professionnel",
+  description: "Prévisions météo consolidées depuis 5+ sources indépendantes (Météo-France, ECMWF, GFS, Yr.no…). Mode professionnel pour viticulteurs, agriculteurs, BTP, sport outdoor.",
+  keywords: ["météo", "prévisions météo", "météo france", "météo agriculteur", "météo viticulteur", "météo BTP", "météo professionnel", "agrégateur météo"],
+  authors: [{ name: "MétéoVision" }],
+  openGraph: {
+    title: "MétéoVision — Météo agrégée 5 sources",
+    description: "Prévisions météo consolidées depuis 5+ sources indépendantes. Mode professionnel pour viticulteurs, agriculteurs, BTP, sport outdoor.",
+    type: "website",
+    locale: "fr_FR",
+    siteName: "MétéoVision",
+    url: "https://meteovision.vercel.app",
+  },
+  twitter: {
+    card: "summary",
+    title: "MétéoVision — Météo agrégée 5 sources",
+    description: "Prévisions météo consolidées depuis 5+ sources indépendantes. Mode professionnel.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
   viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
