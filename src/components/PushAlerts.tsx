@@ -2,18 +2,75 @@
 
 import { useState, useEffect } from "react";
 
-interface Thresholds {
-  gel: string;
-  vent: string;
-  pluie: string;
-  humidite: string;
+interface Suggestion {
+  key: "gel" | "vent" | "pluie" | "humidite";
+  icon: string;
+  label: string;
+  value: number;
+  unit: string;
+  below?: boolean; // true = alerte si EN DESSOUS du seuil
 }
 
-interface Props {
-  city: string;
-  lat: number;
-  lon: number;
-}
+const SUGGESTIONS: Record<string, Suggestion[]> = {
+  viticulteur: [
+    { key: "gel",      icon: "🥶", label: "Gel",            value: 2,  unit: "°C",   below: true },
+    { key: "vent",     icon: "💨", label: "Vent traitement", value: 15, unit: "km/h" },
+    { key: "pluie",    icon: "🌧️", label: "Pluie",          value: 3,  unit: "mm"   },
+    { key: "humidite", icon: "🦠", label: "Mildiou",         value: 80, unit: "%"    },
+  ],
+  agriculteur: [
+    { key: "gel",   icon: "🥶", label: "Gel",        value: 0,  unit: "°C",   below: true },
+    { key: "vent",  icon: "💨", label: "Vent",        value: 30, unit: "km/h" },
+    { key: "pluie", icon: "🌧️", label: "Pluie forte", value: 10, unit: "mm"   },
+  ],
+  grandes_cultures: [
+    { key: "gel",   icon: "🥶", label: "Gel tardif",  value: 0,  unit: "°C",   below: true },
+    { key: "vent",  icon: "💨", label: "Vent récolte", value: 25, unit: "km/h" },
+    { key: "pluie", icon: "🌧️", label: "Pluie",        value: 5,  unit: "mm"   },
+  ],
+  apiculture: [
+    { key: "gel",      icon: "🥶", label: "Gel",        value: 4,  unit: "°C",   below: true },
+    { key: "vent",     icon: "💨", label: "Vent fort",   value: 20, unit: "km/h" },
+    { key: "pluie",    icon: "🌧️", label: "Pluie",       value: 2,  unit: "mm"   },
+    { key: "humidite", icon: "💧", label: "Humidité élevée", value: 85, unit: "%"   },
+  ],
+  forestier: [
+    { key: "vent",  icon: "💨", label: "Tempête",     value: 60, unit: "km/h" },
+    { key: "pluie", icon: "🌧️", label: "Pluie forte", value: 15, unit: "mm"   },
+    { key: "gel",   icon: "🥶", label: "Gel",          value: 0,  unit: "°C",   below: true },
+  ],
+  btp: [
+    { key: "vent",  icon: "💨", label: "Vent grue",    value: 45, unit: "km/h" },
+    { key: "pluie", icon: "🌧️", label: "Pluie béton",  value: 2,  unit: "mm"   },
+    { key: "gel",   icon: "🥶", label: "Gel béton",    value: 2,  unit: "°C",   below: true },
+  ],
+  sport_outdoor: [
+    { key: "vent",  icon: "💨", label: "Vent fort",    value: 50, unit: "km/h" },
+    { key: "pluie", icon: "🌧️", label: "Pluie",        value: 5,  unit: "mm"   },
+    { key: "gel",   icon: "🥶", label: "Gel",          value: 0,  unit: "°C",   below: true },
+  ],
+  transport: [
+    { key: "gel",  icon: "🥶", label: "Verglas route", value: 2,  unit: "°C",   below: true },
+    { key: "vent", icon: "💨", label: "Vent violent",   value: 70, unit: "km/h" },
+  ],
+  evenementiel: [
+    { key: "pluie", icon: "🌧️", label: "Pluie événement", value: 1,  unit: "mm"   },
+    { key: "vent",  icon: "💨", label: "Vent fort",        value: 40, unit: "km/h" },
+  ],
+  nautisme: [
+    { key: "vent",  icon: "💨", label: "Vent navigation", value: 30, unit: "km/h" },
+    { key: "pluie", icon: "🌧️", label: "Pluie",           value: 5,  unit: "mm"   },
+  ],
+  pompier: [
+    { key: "vent",  icon: "💨", label: "Vent fort",     value: 50, unit: "km/h" },
+    { key: "pluie", icon: "🌧️", label: "Pluie forte",   value: 20, unit: "mm"   },
+  ],
+  grand_public: [
+    { key: "gel",   icon: "🥶", label: "Gel",          value: 0,  unit: "°C",   below: true },
+    { key: "vent",  icon: "💨", label: "Vent fort",     value: 50, unit: "km/h" },
+    { key: "pluie", icon: "🌧️", label: "Grosse pluie", value: 10, unit: "mm"   },
+  ],
+};
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
 
@@ -26,36 +83,45 @@ function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   return arr.buffer;
 }
 
-export default function PushAlerts({ city, lat, lon }: Props) {
-  const [thresholds, setThresholds] = useState<Thresholds>({ gel: "", vent: "", pluie: "", humidite: "" });
-  const [subscribed, setSubscribed]   = useState(false);
-  const [loading, setLoading]         = useState(false);
-  const [status, setStatus]           = useState<"idle" | "success" | "error">("idle");
-  const [endpoint, setEndpoint]       = useState<string | null>(null);
-  const [supported, setSupported]     = useState(true);
+interface Props {
+  city: string;
+  lat: number;
+  lon: number;
+  metier: string;
+}
+
+export default function PushAlerts({ city, lat, lon, metier }: Props) {
+  const [selected, setSelected]   = useState<Set<string>>(new Set());
+  const [subscribed, setSubscribed] = useState(false);
+  const [loading, setLoading]     = useState(false);
+  const [status, setStatus]       = useState<"idle" | "success" | "error">("idle");
+  const [supported, setSupported] = useState(true);
+
+  const suggestions = SUGGESTIONS[metier] ?? SUGGESTIONS.grand_public;
 
   useEffect(() => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
       setSupported(false);
       return;
     }
-    // Vérifier si déjà abonné
     navigator.serviceWorker.ready.then((reg) => {
       reg.pushManager.getSubscription().then((sub) => {
-        if (sub) {
-          setSubscribed(true);
-          setEndpoint(sub.endpoint);
-        }
+        if (sub) setSubscribed(true);
       });
     });
   }, []);
 
+  function toggleSuggestion(key: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+    setStatus("idle");
+  }
+
   async function subscribe() {
-    const hasAlert = Object.values(thresholds).some((v) => v.trim() !== "");
-    if (!hasAlert) {
-      setStatus("error");
-      return;
-    }
+    if (selected.size === 0) { setStatus("error"); return; }
     setLoading(true);
     try {
       const reg = await navigator.serviceWorker.ready;
@@ -67,25 +133,19 @@ export default function PushAlerts({ city, lat, lon }: Props) {
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       });
 
-      const parsed: Record<string, number> = {};
-      if (thresholds.gel.trim() !== "")      parsed.gel      = parseFloat(thresholds.gel);
-      if (thresholds.vent.trim() !== "")     parsed.vent     = parseFloat(thresholds.vent);
-      if (thresholds.pluie.trim() !== "")    parsed.pluie    = parseFloat(thresholds.pluie);
-      if (thresholds.humidite.trim() !== "") parsed.humidite = parseFloat(thresholds.humidite);
+      const thresholds: Record<string, number> = {};
+      for (const s of suggestions) {
+        if (selected.has(s.key)) thresholds[s.key] = s.value;
+      }
 
       const res = await fetch("/api/push/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subscription: sub.toJSON(), city, lat, lon, thresholds: parsed }),
+        body: JSON.stringify({ subscription: sub.toJSON(), city, lat, lon, thresholds }),
       });
 
-      if (res.ok) {
-        setSubscribed(true);
-        setEndpoint(sub.endpoint);
-        setStatus("success");
-      } else {
-        setStatus("error");
-      }
+      if (res.ok) { setSubscribed(true); setStatus("success"); }
+      else setStatus("error");
     } catch (err) {
       console.error(err);
       setStatus("error");
@@ -108,114 +168,71 @@ export default function PushAlerts({ city, lat, lon }: Props) {
         });
       }
       setSubscribed(false);
-      setEndpoint(null);
-      setThresholds({ gel: "", vent: "", pluie: "", humidite: "" });
+      setSelected(new Set());
       setStatus("idle");
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
   }
 
   if (!supported) return null;
 
-  const FIELDS = [
-    { key: "gel",      icon: "🥶", label: "Gel", unit: "°C",   placeholder: "ex: 0",  desc: "Alerte si température descend sous ce seuil" },
-    { key: "vent",     icon: "💨", label: "Vent", unit: "km/h", placeholder: "ex: 25", desc: "Alerte si le vent dépasse ce seuil" },
-    { key: "pluie",    icon: "🌧️", label: "Pluie", unit: "mm",  placeholder: "ex: 5",  desc: "Alerte si les précipitations dépassent ce seuil" },
-    { key: "humidite", icon: "🦠", label: "Humidité", unit: "%", placeholder: "ex: 80", desc: "Alerte si l'humidité dépasse ce seuil" },
-  ] as const;
-
   return (
-    <div style={{
-      background: "#fff", borderRadius: 20, border: "1px solid #e2e8f0",
-      padding: "20px 20px", marginBottom: 16,
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-        <span style={{ fontSize: 22 }}>🔔</span>
+    <div style={{ background: "#fff", borderRadius: 20, border: "1px solid #e2e8f0", padding: "16px 20px", marginBottom: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+        <span style={{ fontSize: 20 }}>🔔</span>
         <div>
-          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#1e293b" }}>Alertes personnalisées</h3>
-          <p style={{ margin: 0, fontSize: 12, color: "#94a3b8" }}>Notification chaque matin si un seuil est dépassé dans les 48h</p>
+          <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Alertes personnalisées</h3>
+          <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>Notification chaque matin si un seuil est dépassé dans les 48h</p>
         </div>
       </div>
 
       {subscribed ? (
         <div>
-          <div style={{
-            background: "#f0fdf4", border: "1px solid #86efac",
-            borderRadius: 12, padding: "12px 16px", marginBottom: 12,
-            display: "flex", alignItems: "center", gap: 8,
-          }}>
-            <span style={{ fontSize: 18 }}>✅</span>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#15803d" }}>Alertes actives pour {city}</div>
-              <div style={{ fontSize: 11, color: "#166534" }}>Vous recevrez une notification chaque matin si un seuil est atteint</div>
-            </div>
+          <div style={{ background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 10, padding: "10px 14px", marginBottom: 10, fontSize: 13, color: "#15803d", fontWeight: 600 }}>
+            ✅ Alertes actives pour {city}
           </div>
-          <button
-            onClick={unsubscribe}
-            disabled={loading}
-            style={{
-              width: "100%", padding: "10px", borderRadius: 10, border: "1px solid #fca5a5",
-              background: "#fff1f2", color: "#991b1b", fontSize: 13, fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
+          <button onClick={unsubscribe} disabled={loading} style={{ width: "100%", padding: "9px", borderRadius: 10, border: "1px solid #fca5a5", background: "#fff1f2", color: "#991b1b", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
             {loading ? "..." : "Désactiver les alertes"}
           </button>
         </div>
       ) : (
         <div>
-          <p style={{ fontSize: 12, color: "#64748b", marginBottom: 14, marginTop: 0 }}>
-            Laissez vide les seuils qui ne vous intéressent pas.
-          </p>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
-            {FIELDS.map(({ key, icon, label, unit, placeholder, desc }) => (
-              <div key={key} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 20, width: 28, textAlign: "center", flexShrink: 0 }}>{icon}</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "#475569" }}>{label}</div>
-                  <div style={{ fontSize: 11, color: "#94a3b8" }}>{desc}</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                  <input
-                    type="number"
-                    value={thresholds[key]}
-                    onChange={(e) => setThresholds((t) => ({ ...t, [key]: e.target.value }))}
-                    placeholder={placeholder}
-                    style={{
-                      width: 64, padding: "6px 8px", borderRadius: 8, textAlign: "center",
-                      border: "1.5px solid #e2e8f0", fontSize: 14, outline: "none",
-                    }}
-                  />
-                  <span style={{ fontSize: 12, color: "#94a3b8", width: 32 }}>{unit}</span>
-                </div>
-              </div>
-            ))}
+          <p style={{ margin: "0 0 10px", fontSize: 12, color: "#64748b" }}>Sélectionnez les alertes qui vous intéressent :</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+            {suggestions.map((s) => {
+              const isOn = selected.has(s.key);
+              return (
+                <button
+                  key={s.key}
+                  onClick={() => toggleSuggestion(s.key)}
+                  style={{
+                    padding: "7px 12px", borderRadius: 20, border: `1.5px solid ${isOn ? "#059669" : "#e2e8f0"}`,
+                    background: isOn ? "#f0fdf4" : "#f8fafc",
+                    color: isOn ? "#059669" : "#64748b",
+                    fontSize: 13, fontWeight: isOn ? 700 : 400,
+                    cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {s.icon} {s.label} {s.below ? "<" : ">"} {s.value}{s.unit}
+                  {isOn && <span style={{ marginLeft: 2 }}>✓</span>}
+                </button>
+              );
+            })}
           </div>
 
           {status === "error" && (
-            <p style={{ fontSize: 12, color: "#ef4444", marginBottom: 10 }}>
-              Définissez au moins un seuil pour activer les alertes.
-            </p>
-          )}
-
-          {status === "success" && (
-            <p style={{ fontSize: 12, color: "#059669", marginBottom: 10 }}>
-              ✅ Alertes activées !
-            </p>
+            <p style={{ fontSize: 12, color: "#ef4444", margin: "0 0 8px" }}>Sélectionnez au moins une alerte.</p>
           )}
 
           <button
             onClick={subscribe}
-            disabled={loading}
+            disabled={loading || selected.size === 0}
             style={{
-              width: "100%", padding: "12px", borderRadius: 12, border: "none",
-              background: loading ? "#94a3b8" : "linear-gradient(90deg, #059669, #0284c7)",
-              color: "#fff", fontSize: 14, fontWeight: 700,
-              cursor: loading ? "not-allowed" : "pointer",
+              width: "100%", padding: "11px", borderRadius: 12, border: "none",
+              background: selected.size === 0 ? "#e2e8f0" : "linear-gradient(90deg, #059669, #0284c7)",
+              color: selected.size === 0 ? "#94a3b8" : "#fff",
+              fontSize: 14, fontWeight: 700, cursor: selected.size === 0 ? "not-allowed" : "pointer",
             }}
           >
             {loading ? "Activation..." : `🔔 M'alerter sur ${city}`}

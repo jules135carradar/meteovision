@@ -150,7 +150,7 @@ export default function VillePage() {
           <RainCumulTable daily={weather.daily} historicalPrecip={weather.historicalPrecip} />
 
           {/* Alertes push personnalisées */}
-          <PushAlerts city={city} lat={latNum} lon={lonNum} />
+          <PushAlerts city={city} lat={latNum} lon={lonNum} metier={metier} />
 
           {/* Indicateurs pro */}
           <ProModeIndicators weather={weather} metier={metier} />
