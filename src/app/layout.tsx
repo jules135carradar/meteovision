@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import ServiceWorkerInit from "@/components/ServiceWorkerInit";
 
 export const metadata: Metadata = {
   title: "MétéoVision — Prévisions consolidées de 5+ sources",
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </nav>
 
+        <ServiceWorkerInit />
         <main className="pt-14 relative z-10">
           {children}
         </main>
