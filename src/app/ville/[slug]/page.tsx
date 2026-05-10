@@ -14,9 +14,9 @@ import SearchBar from "@/components/SearchBar";
 import WeatherBackground from "@/components/WeatherBackground";
 import RainCumulTable from "@/components/RainCumulTable";
 import InterventionWindows from "@/components/InterventionWindows";
-import AlertsPanel from "@/components/AlertsPanel";
 import { useFavorites } from "@/lib/useFavorites";
 import WeatherChat from "@/components/WeatherChat";
+import PushAlerts from "@/components/PushAlerts";
 
 export default function VillePage() {
   const params = useSearchParams();
@@ -149,10 +149,8 @@ export default function VillePage() {
           {/* Cumul précipitations 14 jours */}
           <RainCumulTable daily={weather.daily} historicalPrecip={weather.historicalPrecip} />
 
-          {/* Alertes seuils */}
-          {metier !== "grand_public" && (
-            <AlertsPanel hourly={weather.hourly} metier={metier} />
-          )}
+          {/* Alertes push personnalisées */}
+          <PushAlerts city={city} lat={latNum} lon={lonNum} />
 
           {/* Indicateurs pro */}
           <ProModeIndicators weather={weather} metier={metier} />
