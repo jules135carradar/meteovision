@@ -13,6 +13,7 @@ import HourlyForecast from "@/components/HourlyForecast";
 import SearchBar from "@/components/SearchBar";
 import WeatherBackground from "@/components/WeatherBackground";
 import RainCumulTable from "@/components/RainCumulTable";
+import InterventionWindows from "@/components/InterventionWindows";
 import { useFavorites } from "@/lib/useFavorites";
 
 export default function VillePage() {
@@ -148,6 +149,9 @@ export default function VillePage() {
 
           {/* Indicateurs pro */}
           <ProModeIndicators weather={weather} metier={metier} />
+
+          {/* Fenêtres d'intervention */}
+          <InterventionWindows hourly={weather.hourly} metier={metier} />
 
           {/* Synthèse Claude */}
           <ClaudeSynthesis weather={weather} metier={metier} />
