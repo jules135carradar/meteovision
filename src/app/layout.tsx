@@ -4,6 +4,7 @@ import Link from "next/link";
 import Logo from "@/components/Logo";
 import ServiceWorkerInit from "@/components/ServiceWorkerInit";
 import InstallButton from "@/components/InstallButton";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "MétéoVision — Météo agrégée 5 sources, mode professionnel",
@@ -37,6 +38,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
+      <head>
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-D2W60XM7K1" strategy="afterInteractive" />
+        <Script id="google-analytics" strategy="afterInteractive">{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-D2W60XM7K1');
+        `}</Script>
+      </head>
       <body className="min-h-screen text-slate-800">
         {/* Navigation */}
         <nav className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
