@@ -208,7 +208,7 @@ export default function WeatherChat({ weather, metier }: Props) {
               disabled={loading}
               style={{
                 flex: 1, padding: "9px 12px", borderRadius: 12,
-                border: "1.5px solid #e2e8f0", fontSize: 13,
+                border: "1.5px solid #e2e8f0", fontSize: 16,
                 outline: "none", background: loading ? "#f8fafc" : "#fff",
               }}
             />
