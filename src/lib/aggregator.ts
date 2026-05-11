@@ -99,10 +99,9 @@ function aggregateHourly(sources: WeatherSourceResult[]): AggregatedHourlyForeca
 
   const currentHourMs = new Date(new Date().toISOString().slice(0, 13) + ":00:00.000Z").getTime();
 
-  return Object.keys(timeMap)
+  const knownPoints = Object.keys(timeMap)
     .sort()
     .filter((key) => new Date(key).getTime() >= currentHourMs)
-    .slice(0, 14 * 24)
     .map((time) => {
       const acc = timeMap[time];
       const codeFreq = acc.codes.reduce<Record<number, number>>((r, c) => { r[c] = (r[c] ?? 0) + 1; return r; }, {});
@@ -123,6 +122,40 @@ function aggregateHourly(sources: WeatherSourceResult[]): AggregatedHourlyForeca
         description: getWeatherDescription(weatherCode),
       };
     });
+
+  // Interpoler les heures manquantes entre les points connus (ex: données 6h → horaire)
+  const result: typeof knownPoints = [];
+  for (let i = 0; i < knownPoints.length; i++) {
+    result.push(knownPoints[i]);
+    if (i < knownPoints.length - 1) {
+      const a = knownPoints[i];
+      const b = knownPoints[i + 1];
+      const tA = new Date(a.time).getTime();
+      const tB = new Date(b.time).getTime();
+      const gapHours = Math.round((tB - tA) / 3600000);
+      // Interpoler uniquement s'il manque des heures (gap > 1h)
+      for (let h = 1; h < gapHours; h++) {
+        const t = (h / gapHours);
+        const interpTime = new Date(tA + h * 3600000).toISOString().slice(0, 13) + ":00:00.000Z";
+        const lerp = (x: number, y: number) => x + (y - x) * t;
+        const wc = t < 0.5 ? a.weatherCode : b.weatherCode;
+        result.push({
+          time: interpTime,
+          temperature:             lerp(a.temperature, b.temperature),
+          feelsLike:               lerp(a.feelsLike, b.feelsLike),
+          humidity:                lerp(a.humidity, b.humidity),
+          precipitation:           a.precipitation / gapHours,
+          precipitationProbability: lerp(a.precipitationProbability, b.precipitationProbability),
+          windSpeed:               lerp(a.windSpeed, b.windSpeed),
+          windDirection:           lerp(a.windDirection, b.windDirection),
+          weatherCode:             wc,
+          description:             getWeatherDescription(wc),
+        });
+      }
+    }
+  }
+
+  return result.sort((a, b) => a.time.localeCompare(b.time)).slice(0, 14 * 24);
 }
 
 type DayAccumulator = {
