@@ -109,10 +109,11 @@ function aggregateHourly(sources: WeatherSourceResult[]): AggregatedHourlyForeca
       const weatherCode = acc.codes.length > 0
         ? parseInt(Object.keys(codeFreq).sort((a, b) => codeFreq[parseInt(b)] - codeFreq[parseInt(a)])[0])
         : 0;
+      const temperature = weightedMean(acc.temps) ?? 0;
       return {
         time,
-        temperature: weightedMean(acc.temps) ?? 0,
-        feelsLike: weightedMean(acc.feelsLike) ?? 0,
+        temperature,
+        feelsLike: weightedMean(acc.feelsLike) ?? temperature,
         humidity: weightedMean(acc.humidities) ?? 0,
         precipitation: weightedMean(acc.precips) ?? 0,
         precipitationProbability: weightedMean(acc.precipProbs) ?? 0,

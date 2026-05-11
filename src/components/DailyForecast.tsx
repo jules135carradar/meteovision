@@ -76,7 +76,7 @@ export default function DailyForecast({ daily, hourly }: Props) {
         fontWeight: 700,
         color: "#fff",
       }}>
-        📅 7 jours
+        📅 14 jours
       </div>
       <div>
         {daily.map((day, i) => {
