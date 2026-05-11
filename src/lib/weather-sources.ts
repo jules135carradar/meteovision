@@ -66,7 +66,7 @@ export async function fetchOpenMeteoECMWF(
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure,uv_index,visibility` +
       `&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,precipitation,weathercode,wind_speed_10m,wind_direction_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
-      `&timezone=UTC&forecast_days=7`;
+      `&timezone=UTC&forecast_days=14`;
 
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -159,7 +159,7 @@ export async function fetchOpenMeteoGFS(
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure` +
       `&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,precipitation,weathercode,wind_speed_10m,wind_direction_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
-      `&timezone=UTC&forecast_days=7`;
+      `&timezone=UTC&forecast_days=14`;
 
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -250,7 +250,7 @@ export async function fetchOpenMeteoICON(
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure` +
       `&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,precipitation,weathercode,wind_speed_10m,wind_direction_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
-      `&timezone=UTC&forecast_days=7`;
+      `&timezone=UTC&forecast_days=14`;
 
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -328,7 +328,7 @@ async function fetchOpenMeteoModel(
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weathercode,surface_pressure` +
       `&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,precipitation,weathercode,wind_speed_10m,wind_direction_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode` +
-      `&timezone=UTC&forecast_days=7`;
+      `&timezone=UTC&forecast_days=14`;
 
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": USER_AGENT } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -492,7 +492,7 @@ export async function fetchYrNo(
       }
     }
 
-    const sortedDates = Object.keys(dailyMap).sort().slice(0, 7);
+    const sortedDates = Object.keys(dailyMap).sort().slice(0, 14);
     for (const date of sortedDates) {
       const d = dailyMap[date];
       base.daily.push({
@@ -655,7 +655,7 @@ export async function fetchOpenWeatherMap(
         d.precip += entry.rain?.["3h"] ?? 0;
       }
 
-      for (const [date, d] of Array.from(dailyMap.entries()).sort().slice(0, 7)) {
+      for (const [date, d] of Array.from(dailyMap.entries()).sort().slice(0, 14)) {
         base.daily.push({
           date,
           tempMax: d.temps.length ? Math.max(...d.temps) : null,
