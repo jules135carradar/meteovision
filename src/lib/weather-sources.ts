@@ -104,7 +104,7 @@ export async function fetchOpenMeteoECMWF(
       const hourStart = currentUTCHourStart();
       for (let i = 0; i < (h.time?.length ?? 0); i++) {
         const t = parseOpenMeteoUTC(h.time[i]);
-        if (t < hourStart || base.hourly.length >= 168) continue;
+        if (t < hourStart || base.hourly.length >= 336) continue;
         base.hourly.push({
           time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
@@ -195,7 +195,7 @@ export async function fetchOpenMeteoGFS(
       const hourStart = currentUTCHourStart();
       for (let i = 0; i < (h.time?.length ?? 0); i++) {
         const t = parseOpenMeteoUTC(h.time[i]);
-        if (t < hourStart || base.hourly.length >= 168) continue;
+        if (t < hourStart || base.hourly.length >= 336) continue;
         base.hourly.push({
           time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
@@ -286,7 +286,7 @@ export async function fetchOpenMeteoICON(
       const hourStart = currentUTCHourStart();
       for (let i = 0; i < (h.time?.length ?? 0); i++) {
         const t = parseOpenMeteoUTC(h.time[i]);
-        if (t < hourStart || base.hourly.length >= 168) continue;
+        if (t < hourStart || base.hourly.length >= 336) continue;
         base.hourly.push({
           time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
@@ -364,7 +364,7 @@ async function fetchOpenMeteoModel(
       const hourStart = currentUTCHourStart();
       for (let i = 0; i < (h.time?.length ?? 0); i++) {
         const t = parseOpenMeteoUTC(h.time[i]);
-        if (t < hourStart || base.hourly.length >= 168) continue;
+        if (t < hourStart || base.hourly.length >= 336) continue;
         base.hourly.push({
           time: t.toISOString(),
           temperature: h.temperature_2m?.[i] ?? null,
@@ -476,7 +476,7 @@ export async function fetchYrNo(
       if (precip1h) d.precip += precip1h;
 
       // Horaire (24 prochaines heures) — filter from current UTC hour start
-      if (entryTime >= yrHourStart && base.hourly.length < 168 && entryDetails) {
+      if (entryTime >= yrHourStart && base.hourly.length < 336 && entryDetails) {
         const precip = entry.data?.next_1_hours?.details?.precipitation_amount ?? null;
         base.hourly.push({
           time: new Date(entry.time).toISOString(),
